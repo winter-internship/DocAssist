@@ -1,430 +1,429 @@
 <template>
-    <div class="auth">
-      <header class="topbar">
-        <div class="brand" @click="goHome" role="button" tabindex="0">
-          <div class="logo">AI</div>
-          <div class="brand-text">
-            <div class="title">DocAssist</div>
-            <div class="sub">AI 문서 이해 보조</div>
+  <div class="page">
+    <div class="shell">
+      <!-- LEFT: Gradient Panel -->
+      <section class="left">
+        <div class="left-top">
+          <img class="logo" src="/logo.png" alt="DocAssist" />
+        </div>
+
+        <div class="left-center">
+          <div class="welcome">Welcome<br />Back!</div>
+          <div class="left-sub">
+            DoQ · AI 기반 문서 이해 보조 시스템
           </div>
         </div>
-  
-        <button class="btn btn-ghost" type="button" @click="goHome">대시보드</button>
-      </header>
-  
-      <main class="container">
-        <section class="card">
-          <div class="card-head">
-            <h1>로그인</h1>
-            <p class="muted">문서 업로드/드라이브/Q&A 기능을 사용하려면 로그인하세요.</p>
-          </div>
-  
-          <form class="form" @submit.prevent="onSubmit">
-            <label class="field">
-              <span class="label">이메일</span>
+
+        <div class="left-bottom">
+          <div class="mini">© {{ new Date().getFullYear() }} DocAssist</div>
+        </div>
+      </section>
+
+      <!-- RIGHT: Login Form -->
+      <section class="right">
+        <h1 class="title">Login</h1>
+        <p class="desc">Welcome back! Please login to your account.</p>
+
+        <form class="form" @submit.prevent="onSubmit">
+          <label class="field">
+            <span class="label">Email</span>
+            <input
+              class="input"
+              type="email"
+              placeholder="username@gmail.com"
+              v-model="email"
+              autocomplete="email"
+              required
+            />
+          </label>
+
+          <label class="field">
+            <span class="label">Password</span>
+
+            <div class="pw-wrap">
               <input
-                v-model.trim="email"
                 class="input"
-                type="email"
-                placeholder="name@example.com"
-                autocomplete="email"
+                :type="showPassword ? 'text' : 'password'"
+                placeholder="********"
+                v-model="password"
+                autocomplete="current-password"
+                minlength="8"
                 required
               />
-            </label>
-  
-            <label class="field">
-              <span class="label">비밀번호</span>
-              <div class="pw">
-                <input
-                  v-model="password"
-                  class="input"
-                  :type="showPw ? 'text' : 'password'"
-                  placeholder="비밀번호"
-                  autocomplete="current-password"
-                  required
-                />
-                <button class="pw-toggle" type="button" @click="showPw = !showPw">
-                  {{ showPw ? "숨김" : "보기" }}
-                </button>
-              </div>
-            </label>
-  
-            <div class="row">
-              <label class="check">
-                <input type="checkbox" v-model="remember" />
-                <span>로그인 상태 유지</span>
-              </label>
-  
-              <button class="link" type="button" @click="goForgot">비밀번호 찾기</button>
+              <button class="eye" type="button" @click="showPassword = !showPassword">
+                {{ showPassword ? "Hide" : "Show" }}
+              </button>
             </div>
-  
-            <button class="btn btn-primary" type="submit" :disabled="loading">
-              {{ loading ? "로그인 중..." : "로그인" }}
+          </label>
+
+          <div class="row">
+            <label class="remember">
+              <input type="checkbox" v-model="rememberMe" />
+              <span>Remember Me</span>
+            </label>
+
+            <button class="link" type="button" @click="goForgot">
+              Forget Password?
             </button>
-  
-            <div class="divider"><span>또는</span></div>
-  
-            <button class="btn btn-outline" type="button" @click="demoLogin">
-              데모 계정으로 로그인
-            </button>
-          </form>
-  
+          </div>
+
+          <button class="btn" type="submit" :disabled="loading">
+            {{ loading ? "Logging in..." : "Login" }}
+          </button>
+
+          <div v-if="error" class="error">{{ error }}</div>
+
           <div class="footer">
-            <span class="muted">계정이 없나요?</span>
-            <button class="link" type="button" @click="goSignup">회원가입</button>
+            <span class="muted">New User?</span>
+            <button class="link strong" type="button" @click="goSignup">Signup</button>
           </div>
-  
-          <div v-if="toast" class="toast" :class="toastType">
-            {{ toast }}
-          </div>
-        </section>
-  
-        <aside class="side">
-          <div class="side-card">
-            <div class="side-title">DocAssist에서 할 수 있는 것</div>
-            <ul class="side-list">
-              <li>PDF/이미지 업로드 후 텍스트 추출</li>
-              <li>전문용어 용어집/정의 자동 생성</li>
-              <li>원문 vs 쉬운 말 변환 비교</li>
-              <li>문서 근거 기반 Q&A</li>
-            </ul>
-            <div class="side-hint muted">
-              (현재는 프론트 목업 단계 / FastAPI 연동 예정)
-            </div>
-          </div>
-        </aside>
-      </main>
+        </form>
+      </section>
     </div>
-  </template>
-  
-  <script setup lang="ts">
-  import { ref } from "vue";
-  import { useRouter } from "vue-router";
-  
-  const router = useRouter();
-  
-  const email = ref("");
-  const password = ref("");
-  const remember = ref(true);
-  const showPw = ref(false);
-  const loading = ref(false);
-  
-  const toast = ref<string>("");
-  const toastType = ref<"ok" | "bad">("ok");
-  let toastTimer: number | undefined;
-  
-  function showToast(msg: string, type: "ok" | "bad" = "ok") {
-    toast.value = msg;
-    toastType.value = type;
-    if (toastTimer) window.clearTimeout(toastTimer);
-    toastTimer = window.setTimeout(() => (toast.value = ""), 2500);
-  }
-  
-  function goHome() {
+
+    <!-- background -->
+    <div class="bg" />
+  </div>
+</template>
+
+<script setup lang="ts">
+import { ref } from "vue";
+import { useRouter } from "vue-router";
+
+const router = useRouter();
+
+const email = ref("");
+const password = ref("");
+const rememberMe = ref(true);
+const showPassword = ref(false);
+
+const loading = ref(false);
+const error = ref("");
+
+function goForgot() {
+  router.push({ name: "forgotPassword" }).catch(() => {});
+}
+function goSignup() {
+  router.push({ name: "signup" }).catch(() => {});
+}
+
+async function onSubmit() {
+  error.value = "";
+  loading.value = true;
+
+  try {
+    // 데모 검증 (나중에 FastAPI 연동)
+    if (!email.value.includes("@")) throw new Error("이메일 형식이 올바르지 않아요.");
+    if (password.value.length < 8) throw new Error("비밀번호는 8자 이상이어야 해요.");
+
+    // TODO: FastAPI 연결 시
+    // POST /auth/login { email, password, rememberMe }
+
     router.push({ name: "home" }).catch(() => {});
-  }
-  function goSignup() {
-    router.push({ name: "signup" }).catch(() => {});
-  }
-  function goForgot() {
-    router.push({ name: "forgot" }).catch(() => {});
-  }
-  
-  async function onSubmit() {
-    loading.value = true;
-  
-    // TODO: FastAPI 연동
-    // POST /auth/login { email, password }
-    await new Promise((r) => setTimeout(r, 600));
-  
-    if (!email.value || !password.value) {
-      showToast("이메일/비밀번호를 입력하세요.", "bad");
-      loading.value = false;
-      return;
-    }
-  
-    // 데모: 아무 값이나 로그인 성공 처리
-    showToast("로그인 성공! (데모)", "ok");
+  } catch (e: any) {
+    error.value = e?.message ?? "로그인에 실패했어요.";
+  } finally {
     loading.value = false;
-  
-    // 로그인 후 드라이브로 이동
-    router.push({ name: "drive" }).catch(() => {});
   }
-  
-  function demoLogin() {
-    email.value = "demo@docassist.ai";
-    password.value = "demo1234";
-    showToast("데모 계정 입력 완료", "ok");
+}
+</script>
+
+<style scoped>
+/* ===== theme (blue) ===== */
+:root {
+  --b1: #1d4ed8; /* blue-700 */
+  --b2: #0ea5e9; /* sky-500 */
+  --b3: #22c55e; /* tiny accent (optional) */
+  --ink: #111827;
+  --muted: #6b7280;
+  --line: #e5e7eb;
+  --ring: rgba(29, 78, 216, 0.18);
+}
+
+.page {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  background: #f3f7ff;
+  font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, "Noto Sans KR", Arial;
+  position: relative;
+  overflow: hidden;
+}
+
+.bg {
+  position: absolute;
+  inset: -40%;
+  background:
+    radial-gradient(circle at 20% 20%, rgba(14,165,233,0.22), transparent 45%),
+    radial-gradient(circle at 80% 60%, rgba(29,78,216,0.18), transparent 45%),
+    radial-gradient(circle at 50% 90%, rgba(59,130,246,0.14), transparent 40%);
+  filter: blur(20px);
+  z-index: 0;
+}
+
+.shell {
+  width: min(980px, 100%);
+  min-height: 520px;
+  background: #fff;
+  border-radius: 22px;
+  box-shadow: 0 24px 70px rgba(17, 24, 39, 0.18);
+  overflow: hidden;
+  display: grid;
+  grid-template-columns: 1.05fr 0.95fr;
+  z-index: 1;
+}
+
+/* ===== left panel ===== */
+.left {
+  position: relative;
+  color: #fff;
+  padding: 26px 26px 18px;
+  background: linear-gradient(135deg, rgba(29,78,216,0.95), rgba(14,165,233,0.90));
+}
+
+.left::before {
+  content: "";
+  position: absolute;
+  inset: -20%;
+  background:
+    radial-gradient(circle at 30% 35%, rgba(255,255,255,0.22), transparent 45%),
+    radial-gradient(circle at 70% 65%, rgba(255,255,255,0.12), transparent 45%);
+  transform: rotate(10deg);
+  opacity: 0.9;
+}
+
+.left-top,
+.left-center,
+.left-bottom {
+  position: relative;
+  z-index: 1;
+}
+
+.left-top {
+  display: flex;
+  align-items: center;
+}
+
+.logo {
+  width: 34px;
+  height: 34px;
+  object-fit: contain;
+  border-radius: 10px;
+  filter: drop-shadow(0 10px 18px rgba(0,0,0,0.22));
+}
+
+.left-center {
+  margin-top: 68px;
+}
+
+.welcome {
+  font-weight: 1000;
+  font-size: 60px;
+  line-height: 1.02;
+  letter-spacing: -0.8px;
+  text-shadow: 0 18px 30px rgba(0, 0, 0, 0.18);
+}
+
+.left-sub {
+  margin-top: 16px;
+  font-weight: 800;
+  opacity: 0.9;
+}
+
+.left-bottom {
+  margin-top: auto;
+  padding-top: 80px;
+}
+
+.mini {
+  font-weight: 800;
+  opacity: 0.7;
+  font-size: 12px;
+}
+
+/* ===== right panel ===== */
+.right {
+  padding: 46px 46px 34px;
+  display: grid;
+  align-content: start;
+}
+
+.title {
+  margin: 0;
+  font-size: 32px;
+  font-weight: 1000;
+  color: var(--ink);
+}
+
+.desc {
+  margin: 10px 0 22px;
+  color: var(--muted);
+  font-weight: 700;
+  font-size: 13px;
+}
+
+.form {
+  display: grid;
+  gap: 16px;
+}
+
+.field {
+  display: grid;
+  gap: 8px;
+}
+
+.label {
+  font-size: 12px;
+  color: #9ca3af;
+  font-weight: 900;
+}
+
+.input {
+  width: 100%;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 12px 12px;
+  outline: none;
+  font-weight: 800;
+  color: var(--ink);
+  background: #fff;
+}
+
+.input:focus {
+  border-color: rgba(29,78,216,0.35);
+  box-shadow: 0 0 0 3px var(--ring);
+}
+
+.pw-wrap {
+  position: relative;
+}
+
+.pw-wrap .input {
+  padding-right: 70px;
+}
+
+.eye {
+  position: absolute;
+  top: 50%;
+  right: 10px;
+  transform: translateY(-50%);
+  height: 32px;
+  padding: 0 10px;
+  border-radius: 10px;
+  border: 1px solid var(--line);
+  background: #fff;
+  cursor: pointer;
+  font-weight: 900;
+  font-size: 12px;
+  color: #374151;
+}
+
+.eye:hover {
+  background: #f9fafb;
+}
+
+.row {
+  margin-top: 2px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.remember {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  color: #374151;
+  font-weight: 800;
+}
+
+.remember input {
+  width: 16px;
+  height: 16px;
+  accent-color: var(--b1);
+}
+
+.btn {
+  margin-top: 6px;
+  height: 46px;
+  border: none;
+  border-radius: 10px;
+  font-weight: 1000;
+  color: #fff;
+  cursor: pointer;
+  background: linear-gradient(90deg, var(--b1), var(--b2));
+  box-shadow: 0 14px 24px rgba(14,165,233,0.20);
+}
+
+.btn:hover {
+  filter: brightness(0.98);
+}
+
+.btn:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.link {
+  border: none;
+  background: transparent;
+  color: var(--b1);
+  font-weight: 900;
+  cursor: pointer;
+  padding: 4px 6px;
+  border-radius: 8px;
+  font-size: 12px;
+}
+
+.link:hover {
+  background: rgba(29, 78, 216, 0.08);
+}
+
+.link.strong {
+  font-size: 12px;
+  padding: 0 6px;
+}
+
+.footer {
+  margin-top: 10px;
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  justify-content: center;
+}
+
+.muted {
+  color: #9ca3af;
+  font-weight: 800;
+  font-size: 12px;
+}
+
+.error {
+  border: 1px solid #fecaca;
+  background: #fef2f2;
+  color: #991b1b;
+  border-radius: 12px;
+  padding: 10px 12px;
+  font-weight: 900;
+  font-size: 12px;
+}
+
+/* responsive */
+@media (max-width: 900px) {
+  .shell {
+    grid-template-columns: 1fr;
   }
-  </script>
-  
-  <style scoped>
-  .auth {
-    min-height: 100vh;
-    background: #f4f6fb;
-    color: #111827;
-    font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, "Noto Sans KR", Arial;
+  .left-center {
+    margin-top: 26px;
   }
-  
-  .topbar {
-    height: 72px;
-    background: #fff;
-    border-bottom: 1px solid #e5e7eb;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 0 18px;
+  .welcome {
+    font-size: 46px;
   }
-  
-  .brand {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    cursor: pointer;
-    user-select: none;
+  .right {
+    padding: 28px 22px 22px;
   }
-  .logo {
-    width: 40px;
-    height: 40px;
-    border-radius: 12px;
-    display: grid;
-    place-items: center;
-    background: #111827;
-    color: #fff;
-    font-weight: 900;
-  }
-  .brand-text .title {
-    font-weight: 900;
-    font-size: 14px;
-  }
-  .brand-text .sub {
-    color: #6b7280;
-    font-size: 12px;
-    margin-top: 2px;
-  }
-  
-  .container {
-    max-width: 1060px;
-    margin: 0 auto;
-    padding: 18px;
-    display: grid;
-    grid-template-columns: 1.1fr 0.9fr;
-    gap: 14px;
-    align-items: start;
-  }
-  
-  .card {
-    background: #fff;
-    border: 1px solid #e5e7eb;
-    border-radius: 18px;
-    padding: 18px;
-    position: relative;
-  }
-  
-  .card-head h1 {
-    margin: 0;
-    font-size: 20px;
-    font-weight: 900;
-  }
-  .muted {
-    color: #6b7280;
-    font-size: 12px;
-  }
-  .card-head p {
-    margin: 8px 0 0;
-    line-height: 1.6;
-  }
-  
-  .form {
-    margin-top: 14px;
-    display: grid;
-    gap: 12px;
-  }
-  
-  .field {
-    display: grid;
-    gap: 6px;
-  }
-  .label {
-    font-weight: 900;
-    font-size: 12px;
-  }
-  
-  .input {
-    width: 100%;
-    border: 1px solid #e5e7eb;
-    border-radius: 14px;
-    padding: 10px 12px;
-    outline: none;
-    background: #fff;
-  }
-  .input:focus {
-    border-color: #93c5fd;
-    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
-  }
-  
-  .pw {
-    display: grid;
-    grid-template-columns: 1fr auto;
-    gap: 8px;
-    align-items: center;
-  }
-  .pw-toggle {
-    border: 1px solid #e5e7eb;
-    background: #fff;
-    padding: 10px 12px;
-    border-radius: 12px;
-    cursor: pointer;
-    font-weight: 900;
-  }
-  .pw-toggle:hover {
-    background: #f9fafb;
-  }
-  
-  .row {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 10px;
-    flex-wrap: wrap;
-  }
-  .check {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    font-size: 12px;
-    font-weight: 800;
-    color: #374151;
-  }
-  
-  .divider {
-    display: grid;
-    place-items: center;
-    margin: 6px 0;
-    position: relative;
-  }
-  .divider::before {
-    content: "";
-    position: absolute;
-    left: 0;
-    right: 0;
-    height: 1px;
-    background: #eef2f7;
-  }
-  .divider span {
-    background: #fff;
-    padding: 0 10px;
-    color: #6b7280;
-    font-size: 12px;
-    position: relative;
-    z-index: 1;
-  }
-  
-  .footer {
-    margin-top: 12px;
-    display: flex;
-    gap: 8px;
-    align-items: center;
-  }
-  
-  .side {
-    display: grid;
-    gap: 14px;
-  }
-  .side-card {
-    background: linear-gradient(180deg, #ffffff, #f9fafb);
-    border: 1px solid #e5e7eb;
-    border-radius: 18px;
-    padding: 18px;
-  }
-  .side-title {
-    font-weight: 900;
-    margin-bottom: 10px;
-  }
-  .side-list {
-    margin: 0;
-    padding-left: 18px;
-    display: grid;
-    gap: 8px;
-    color: #374151;
-    font-weight: 700;
-    font-size: 13px;
-  }
-  .side-hint {
-    margin-top: 12px;
-  }
-  
-  .toast {
-    position: absolute;
-    left: 18px;
-    right: 18px;
-    bottom: 14px;
-    padding: 10px 12px;
-    border-radius: 14px;
-    font-weight: 900;
-    border: 1px solid transparent;
-  }
-  .toast.ok {
-    background: #ecfdf5;
-    border-color: #a7f3d0;
-    color: #065f46;
-  }
-  .toast.bad {
-    background: #fef2f2;
-    border-color: #fecaca;
-    color: #991b1b;
-  }
-  
-  /* Buttons */
-  .btn {
-    border: 1px solid #e5e7eb;
-    background: #fff;
-    padding: 10px 12px;
-    border-radius: 12px;
-    font-weight: 900;
-    cursor: pointer;
-  }
-  .btn:hover {
-    background: #f9fafb;
-  }
-  .btn-primary {
-    background: #2563eb;
-    border-color: #2563eb;
-    color: #fff;
-  }
-  .btn-primary:hover {
-    background: #1d4ed8;
-  }
-  .btn-outline {
-    border-color: #cbd5e1;
-  }
-  .btn-ghost {
-    border-color: transparent;
-    background: transparent;
-  }
-  
-  .link {
-    border: none;
-    background: transparent;
-    color: #2563eb;
-    font-weight: 900;
-    cursor: pointer;
-    padding: 6px 8px;
-    border-radius: 10px;
-  }
-  .link:hover {
-    background: #eff6ff;
-  }
-  
-  .btn:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
-  }
-  
-  @media (max-width: 920px) {
-    .container {
-      grid-template-columns: 1fr;
-    }
-  }
-  </style>
-  
+}
+</style>

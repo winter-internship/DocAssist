@@ -3,7 +3,9 @@
     <!-- Top Bar -->
     <header class="topbar">
       <div class="brand">
-        <div class="logo">AI</div>
+        <div class="logo">
+          <img src="/logo.png" alt="로고" />
+        </div>
         <div class="brand-text">
           <div class="title">문서 이해 보조 시스템</div>
           <div class="subtitle">Dashboard</div>
@@ -31,7 +33,7 @@
           </p>
           <div class="hero-actions">
             <button class="btn btn-primary" @click="goUpload">문서 업로드 시작</button>
-            <button class="btn btn-outline" @click="goGuide">사용 가이드</button>
+
           </div>
         </div>
 
@@ -351,11 +353,16 @@ function openDocument(docId: string) {
   width: 40px;
   height: 40px;
   border-radius: 12px;
-  display: grid;
-  place-items: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
   background: #111827;
-  color: #fff;
-  font-weight: 800;
+}
+.logo img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
 }
 .brand-text .title {
   font-weight: 800;
