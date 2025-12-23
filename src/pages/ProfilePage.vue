@@ -1,521 +1,664 @@
 <template>
-    <div class="app">
-      <!-- Sidebar -->
-      <aside class="sidebar">
-        <div class="sb-top">
-          <div class="sb-logo">AI</div>
-        </div>
-  
-        <nav class="sb-nav">
-          <button class="sb-item" title="대시보드" @click="go('home')">🏠</button>
-          <button class="sb-item" title="업로드" @click="go('upload')">⬆️</button>
-          <button class="sb-item" title="내 드라이브" @click="go('drive')">🗂️</button>
-          <button class="sb-item" title="문서 보기(최근 열기)" @click="openLastDoc">📄</button>
-          <button class="sb-item" title="Q&A" @click="go('qa')">💬</button>
-          <button class="sb-item" title="용어집" @click="go('terms')">📚</button>
-          <button class="sb-item active" title="프로필/설정">👤</button>
-        </nav>
-  
-        <div class="sb-bottom">
-          <button class="sb-item" title="도움말(준비중)" disabled>❓</button>
-          <button class="sb-item" title="설정(준비중)" disabled>⚙️</button>
-        </div>
-      </aside>
-  
-      <!-- Main -->
-      <div class="main">
-        <!-- Topbar -->
-        <header class="topbar">
-          <div class="tb-left">
-            <div class="tb-title">
-              <span class="tb-title-strong">프로필/설정</span>
-              <span class="tb-sub">· 결과 표시 방식과 계정 정보를 관리하세요</span>
+  <div class="app">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div class="sb-brand">
+        <div class="sb-logo"><img src="/logo.png" alt="DocAssist" /></div>
+        <div class="sb-name">DocAssist</div>
+      </div>
+
+      <div class="sb-search">
+        <input class="sb-input" placeholder="Search" v-model="sidebarQ" />
+      </div>
+
+      <nav class="sb-nav">
+        <button class="sb-item" @click="go('home')"><span class="ico">🏠</span><span class="txt">Home</span></button>
+        <button class="sb-item" @click="go('drive')"><span class="ico">🗂️</span><span class="txt">Drive</span></button>
+        <button class="sb-item" @click="go('upload')"><span class="ico">⬆️</span><span class="txt">Upload</span></button>
+        <button class="sb-item" @click="go('qa')"><span class="ico">💬</span><span class="txt">Q&A</span></button>
+        <div class="sb-sep"></div>
+        <button class="sb-item active" @click="go('profile')"><span class="ico">👤</span><span class="txt">Profile</span></button>
+        <button class="sb-item" @click="go('admin')"><span class="ico">🛡️</span><span class="txt">Admin</span></button>
+      </nav>
+
+      <div class="sb-bottom">
+        <button class="sb-mini" @click="toggleTheme" :title="theme === 'dark' ? 'Light' : 'Dark'">
+          {{ theme === "dark" ? "☀️" : "🌙" }}
+        </button>
+        <button class="sb-mini" @click="logoutMock" title="Logout">↩️</button>
+      </div>
+    </aside>
+
+    <!-- Main -->
+    <div class="main">
+      <header class="top">
+        <div class="top-bg"></div>
+
+        <div class="top-inner">
+          <div class="top-left">
+            <div class="crumb">
+              <span class="pill">Settings</span>
+              <span class="dot">•</span>
+              <span class="muted">Profile</span>
             </div>
-  
-            <div class="tb-meta">
-              <span class="pill">계정: {{ profile.email }}</span>
-              <span class="muted">·</span>
-              <span class="muted">플랜: {{ profile.plan }}</span>
+            <h1 class="title">프로필 / 설정</h1>
+            <p class="sub muted">
+              문서 이해 보조 옵션과 화면 표시를 개인화합니다.
+            </p>
+          </div>
+
+          <div class="top-right">
+            <button class="btn btn-ghost" @click="saveMock">저장(데모)</button>
+            <button class="btn btn-primary" @click="goResetPassword">비밀번호 변경</button>
+          </div>
+        </div>
+      </header>
+
+      <main class="content">
+        <!-- Profile Card -->
+        <section class="card profile-card">
+          <div class="pc-head">
+            <div class="avatar">
+              <div class="avatar-ring"></div>
+              <div class="avatar-img">HJ</div>
+            </div>
+
+            <div class="pc-meta">
+              <div class="name">{{ user.name }}</div>
+              <div class="email muted">{{ user.email }}</div>
+              <div class="meta-line">
+                <span class="tag">Last login</span>
+                <span class="muted">{{ formatDateTime(user.lastLoginAt) }}</span>
+                <span class="sep">·</span>
+                <span class="tag">Joined</span>
+                <span class="muted">{{ formatDate(user.joinedAt) }}</span>
+              </div>
+            </div>
+
+            <div class="pc-actions">
+              <button class="btn btn-outline" @click="go('drive')">내 드라이브</button>
+              <button class="btn btn-outline" @click="go('qa')">Q&A</button>
             </div>
           </div>
-  
-          <div class="tb-right">
-            <button class="btn btn-outline" type="button" @click="restoreDefaults">기본값 복원</button>
-            <button class="btn btn-primary" type="button" @click="saveMock">저장</button>
-          </div>
-        </header>
-  
-        <main class="content">
-          <!-- Profile card -->
-          <section class="card">
+        </section>
+
+        <!-- Settings grid -->
+        <section class="grid">
+          <!-- 이해 보조 설정 -->
+          <article class="card">
             <div class="card-head">
-              <h2>내 정보</h2>
-              <div class="head-actions">
-                <span class="muted small">(데모) 실제로는 FastAPI에서 사용자 정보 로드</span>
-              </div>
+              <h2>이해 보조 설정</h2>
+              <div class="badge">AI Assist</div>
             </div>
-  
-            <div class="profile">
-              <div class="avatar">{{ initials }}</div>
-  
-              <div class="pinfo">
-                <div class="name-row">
-                  <div class="name">{{ profile.name }}</div>
-                  <span class="badge">Active</span>
+
+            <div class="form">
+              <div class="field">
+                <div class="label">쉬운말 변환 강도</div>
+                <div class="seg">
+                  <button :class="['seg-btn', assist.level==='low' && 'on']" @click="assist.level='low'">약</button>
+                  <button :class="['seg-btn', assist.level==='mid' && 'on']" @click="assist.level='mid'">중</button>
+                  <button :class="['seg-btn', assist.level==='high' && 'on']" @click="assist.level='high'">강</button>
                 </div>
-                <div class="muted">{{ profile.email }}</div>
-                <div class="muted small">마지막 로그인: {{ profile.lastLogin }}</div>
+                <div class="help muted">강도를 높일수록 문장 단순화/용어 풀어쓰기가 적극적으로 적용됩니다.</div>
               </div>
-  
-              <div class="pactions">
-                <button class="btn btn-outline" type="button" @click="changePasswordMock">비밀번호 변경</button>
-                <button class="btn" type="button" @click="logoutMock">로그아웃</button>
-              </div>
-            </div>
-          </section>
-  
-          <!-- Settings grid -->
-          <section class="grid">
-            <!-- Explanation settings -->
-            <article class="card">
-              <div class="card-head">
-                <h2>이해 보조 설정</h2>
-              </div>
-  
-              <div class="form">
-                <label class="field">
-                  <span class="label">쉬운말 변환 강도</span>
-                  <select class="select" v-model="settings.simplifyLevel">
-                    <option value="low">낮음(원문 최대 보존)</option>
-                    <option value="mid">중간(권장)</option>
-                    <option value="high">높음(최대한 쉽게)</option>
-                  </select>
-                </label>
-  
-                <label class="field">
-                  <span class="label">용어 설명 깊이</span>
-                  <select class="select" v-model="settings.glossaryDepth">
-                    <option value="short">짧게(정의만)</option>
-                    <option value="mid">보통(정의+예시)</option>
-                    <option value="deep">자세히(정의+예시+주의사항)</option>
-                  </select>
-                </label>
-  
-                <label class="field">
-                  <span class="label">근거 표시 방식</span>
-                  <select class="select" v-model="settings.citationMode">
-                    <option value="top">답변 아래 근거 칩</option>
-                    <option value="inline">문장별 요약 근거</option>
-                  </select>
-                </label>
-  
-                <label class="check">
-                  <input type="checkbox" v-model="settings.highlightEvidence" />
-                  <span>근거 문단 하이라이트</span>
-                </label>
-  
-                <label class="check">
-                  <input type="checkbox" v-model="settings.autoPickEvidence" />
-                  <span>답변 생성 시 1번 근거 자동 선택</span>
-                </label>
-              </div>
-            </article>
-  
-            <!-- Display settings -->
-            <article class="card">
-              <div class="card-head">
-                <h2>화면 표시</h2>
-              </div>
-  
-              <div class="form">
-                <label class="field">
-                  <span class="label">테마</span>
-                  <select class="select" v-model="settings.theme">
-                    <option value="light">라이트</option>
-                    <option value="dark">다크(데모)</option>
-                  </select>
-                </label>
-  
-                <label class="field">
-                  <span class="label">글자 크기</span>
-                  <select class="select" v-model="settings.fontScale">
-                    <option value="sm">작게</option>
-                    <option value="md">보통</option>
-                    <option value="lg">크게</option>
-                  </select>
-                </label>
-  
-                <label class="field">
-                  <span class="label">문장 단위 표시</span>
-                  <select class="select" v-model="settings.splitMode">
-                    <option value="paragraph">문단 기준</option>
-                    <option value="sentence">문장 기준</option>
-                  </select>
-                </label>
-  
-                <div class="preview">
-                  <div class="preview-title">미리보기</div>
-                  <div class="preview-box" :data-scale="settings.fontScale">
-                    <div class="pv-h">원문</div>
-                    <div class="pv-p">
-                      본 문서는 내부 규정에 따라 처리되며, 접근 권한은 최소 범위로 부여됩니다.
-                    </div>
-                    <div class="pv-h">쉬운말</div>
-                    <div class="pv-p">
-                      이 문서는 회사 규칙에 따라 처리돼요. 시스템 접근 권한은 꼭 필요한 사람에게만 줍니다.
-                    </div>
-                  </div>
+
+              <div class="field">
+                <div class="label">용어 설명 깊이</div>
+                <input class="range" type="range" min="1" max="5" v-model="assist.termDepth" />
+                <div class="range-row">
+                  <span class="muted">간단</span>
+                  <span class="mono">Lv. {{ assist.termDepth }}</span>
+                  <span class="muted">자세히</span>
                 </div>
               </div>
-            </article>
-          </section>
-  
-          <!-- Danger zone -->
-          <section class="card danger">
+
+              <div class="field">
+                <div class="label">근거 표시 방식</div>
+                <select class="select" v-model="assist.evidenceMode">
+                  <option value="inline">문장 옆(Inline)</option>
+                  <option value="panel">오른쪽 패널(Panel)</option>
+                  <option value="hover">하이라이트 + 호버(Hover)</option>
+                </select>
+              </div>
+            </div>
+          </article>
+
+          <!-- 화면 표시 -->
+          <article class="card">
+            <div class="card-head">
+              <h2>화면 표시</h2>
+              <div class="badge">UI</div>
+            </div>
+
+            <div class="form">
+              <div class="field">
+                <div class="label">테마</div>
+                <div class="row">
+                  <button class="btn btn-outline" @click="setTheme('light')" :disabled="theme==='light'">라이트</button>
+                  <button class="btn btn-outline" @click="setTheme('dark')" :disabled="theme==='dark'">다크(딥 네이비)</button>
+                </div>
+                <div class="help muted">테마는 전 페이지 공통으로 적용됩니다.</div>
+              </div>
+
+              <div class="field">
+                <div class="label">글자 크기</div>
+                <div class="seg">
+                  <button :class="['seg-btn', ui.fontSize==='sm' && 'on']" @click="ui.fontSize='sm'">작게</button>
+                  <button :class="['seg-btn', ui.fontSize==='md' && 'on']" @click="ui.fontSize='md'">보통</button>
+                  <button :class="['seg-btn', ui.fontSize==='lg' && 'on']" @click="ui.fontSize='lg'">크게</button>
+                </div>
+              </div>
+
+              <div class="field">
+                <div class="label">문장 단위 표시</div>
+                <label class="toggle">
+                  <input type="checkbox" v-model="ui.sentenceMode" />
+                  <span class="knob"></span>
+                  <span class="toggle-text muted">문장별 구분선/번호 표시</span>
+                </label>
+              </div>
+            </div>
+          </article>
+
+          <!-- 계정 관리 -->
+          <article class="card">
             <div class="card-head">
               <h2>계정 관리</h2>
+              <div class="badge">Account</div>
             </div>
-  
-            <div class="danger-body">
-              <div class="danger-item">
-                <div>
-                  <div class="danger-title">내 데이터 초기화(데모)</div>
-                  <div class="muted small">업로드 문서, Q&A 기록, 설정 등을 초기화합니다.</div>
-                </div>
-                <button class="btn btn-outline" type="button" @click="resetDataMock">초기화</button>
+
+            <div class="form">
+              <div class="field">
+                <div class="label">이메일</div>
+                <input class="input" :value="user.email" disabled />
               </div>
-  
-              <div class="danger-item">
-                <div>
-                  <div class="danger-title">계정 삭제(데모)</div>
-                  <div class="muted small">실제 서비스에서는 본인 확인 후 진행합니다.</div>
+
+              <div class="field">
+                <div class="label">보안</div>
+                <div class="row">
+                  <button class="btn btn-primary" @click="goResetPassword">비밀번호 변경</button>
+                  <button class="btn btn-outline" @click="go('login')">로그인 화면</button>
                 </div>
-                <button class="btn btn-danger" type="button" @click="deleteAccountMock">삭제</button>
+              </div>
+
+              <div class="field">
+                <div class="label">로그아웃</div>
+                <button class="btn btn-ghost" @click="logoutMock">로그아웃(데모)</button>
+              </div>
+
+              <div class="help muted">
+                실제 연동 시: FastAPI auth + JWT/세션 기반으로 설정 저장/불러오기 연결
               </div>
             </div>
-          </section>
-  
-          <div v-if="toast" class="toast">{{ toast }}</div>
-        </main>
-      </div>
+          </article>
+
+          <!-- 우측 미니 패널 -->
+          <aside class="panel">
+            <div class="panel-card">
+              <div class="panel-head">
+                <div class="panel-title">미리보기</div>
+                <div class="panel-dot"></div>
+              </div>
+
+              <div class="preview">
+                <div class="pv-title">적용될 설정</div>
+                <ul class="pv-list">
+                  <li>쉬운말 강도: <b>{{ labelLevel(assist.level) }}</b></li>
+                  <li>용어 깊이: <b>Lv. {{ assist.termDepth }}</b></li>
+                  <li>근거 표시: <b>{{ assist.evidenceMode }}</b></li>
+                  <li>테마: <b>{{ theme }}</b></li>
+                  <li>글자 크기: <b>{{ ui.fontSize }}</b></li>
+                  <li>문장 단위: <b>{{ ui.sentenceMode ? "ON" : "OFF" }}</b></li>
+                </ul>
+              </div>
+
+              <button class="btn btn-outline full" @click="saveMock">저장(데모)</button>
+            </div>
+          </aside>
+        </section>
+      </main>
     </div>
-  </template>
-  
-  <script setup lang="ts">
-  import { computed, ref } from "vue";
-  import { useRouter } from "vue-router";
-  
-  const router = useRouter();
-  
-  const profile = ref({
-    name: "혜진",
-    email: "abcd63980041@gmail.com",
-    plan: "Free (Demo)",
-    lastLogin: new Date().toLocaleString("ko-KR", { hour: "2-digit", minute: "2-digit" }),
+  </div>
+</template>
+
+<script setup lang="ts">
+import { onMounted, reactive, ref } from "vue";
+import { useRouter } from "vue-router";
+
+const router = useRouter();
+const sidebarQ = ref("");
+
+const theme = ref<"light" | "dark">("light");
+
+const user = reactive({
+  name: "Hyejin",
+  email: "abcd63980041@gmail.com",
+  lastLoginAt: new Date(Date.now() - 1000 * 60 * 60 * 6).toISOString(),
+  joinedAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 18).toISOString(),
+});
+
+const assist = reactive({
+  level: "mid" as "low" | "mid" | "high",
+  termDepth: 3,
+  evidenceMode: "panel" as "inline" | "panel" | "hover",
+});
+
+const ui = reactive({
+  fontSize: "md" as "sm" | "md" | "lg",
+  sentenceMode: true,
+});
+
+function go(name: string) {
+  router.push({ name }).catch(() => {});
+}
+
+function applyTheme(next: "light" | "dark") {
+  theme.value = next;
+  document.documentElement.setAttribute("data-theme", next);
+  localStorage.setItem("theme", next);
+}
+function setTheme(next: "light" | "dark") {
+  applyTheme(next);
+}
+function toggleTheme() {
+  applyTheme(theme.value === "dark" ? "light" : "dark");
+}
+
+onMounted(() => {
+  const saved = (localStorage.getItem("theme") as "light" | "dark") || "light";
+  applyTheme(saved);
+});
+
+function goResetPassword() {
+  // 데모: 토큰 없이 이동
+  router.push({ name: "resetPassword" }).catch(() => {});
+}
+
+function logoutMock() {
+  alert("로그아웃(데모): 나중에 토큰 삭제/세션 만료 처리");
+}
+
+function saveMock() {
+  alert("저장(데모): 이 설정들을 DB에 저장하도록 FastAPI 연결 예정");
+}
+
+function labelLevel(v: "low" | "mid" | "high") {
+  if (v === "low") return "약";
+  if (v === "mid") return "중";
+  return "강";
+}
+
+function formatDate(iso: string) {
+  const d = new Date(iso);
+  return d.toLocaleDateString("ko-KR", { year: "numeric", month: "2-digit", day: "2-digit" });
+}
+function formatDateTime(iso: string) {
+  const d = new Date(iso);
+  return d.toLocaleString("ko-KR", {
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
   });
-  
-  const settings = ref({
-    simplifyLevel: "mid" as "low" | "mid" | "high",
-    glossaryDepth: "mid" as "short" | "mid" | "deep",
-    citationMode: "top" as "top" | "inline",
-    highlightEvidence: true,
-    autoPickEvidence: true,
-  
-    theme: "light" as "light" | "dark",
-    fontScale: "md" as "sm" | "md" | "lg",
-    splitMode: "paragraph" as "paragraph" | "sentence",
-  });
-  
-  const defaults = JSON.parse(JSON.stringify(settings.value)) as typeof settings.value;
-  
-  const toast = ref("");
-  let timer: number | undefined;
-  
-  function showToast(msg: string) {
-    toast.value = msg;
-    if (timer) window.clearTimeout(timer);
-    timer = window.setTimeout(() => (toast.value = ""), 1600);
-  }
-  
-  const initials = computed(() => {
-    const n = profile.value.name?.trim() || "U";
-    return n.slice(0, 1).toUpperCase();
-  });
-  
-  function go(name: string) {
-    router.push({ name }).catch(() => {});
-  }
-  
-  function openLastDoc() {
-    router.push({ name: "documentView", params: { id: "doc_001" } }).catch(() => {});
-  }
-  
-  function restoreDefaults() {
-    settings.value = JSON.parse(JSON.stringify(defaults));
-    showToast("기본값으로 복원했어요");
-  }
-  
-  function saveMock() {
-    showToast("저장 완료(데모)");
-  }
-  
-  function changePasswordMock() {
-    alert("비밀번호 변경(데모): 나중에 /forgot-password 또는 별도 페이지로 연결 예정");
-  }
-  
-  function logoutMock() {
-    alert("로그아웃(데모): 토큰 삭제 후 /login 이동 연결 예정");
-    router.push({ name: "login" }).catch(() => {});
-  }
-  
-  function resetDataMock() {
-    const ok = confirm("정말 초기화할까요? (데모)");
-    if (!ok) return;
-    showToast("데이터 초기화(데모)");
-  }
-  
-  function deleteAccountMock() {
-    const ok = confirm("정말 계정을 삭제할까요? (데모)");
-    if (!ok) return;
-    showToast("계정 삭제 요청(데모)");
-  }
-  </script>
-  
-  <style scoped>
-  .app {
-    min-height: 100vh;
-    background: #f4f6fb;
-    color: #111827;
-    font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, "Noto Sans KR", Arial;
-    display: grid;
-    grid-template-columns: 72px 1fr;
-  }
-  
-  /* Sidebar */
-  .sidebar {
-    background: #2f3642;
-    color: #fff;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding: 12px 0;
-    gap: 10px;
-  }
-  .sb-top { padding: 6px 0 10px; }
-  .sb-logo {
-    width: 44px; height: 44px;
-    border-radius: 14px;
-    display: grid; place-items: center;
-    background: rgba(255,255,255,0.14);
-    font-weight: 900;
-  }
-  .sb-nav, .sb-bottom {
-    display: grid;
-    gap: 8px;
-    width: 100%;
-    justify-items: center;
-  }
-  .sb-bottom { margin-top: auto; padding-bottom: 6px; }
-  .sb-item {
-    width: 44px; height: 44px;
-    border-radius: 14px;
-    border: none;
-    background: transparent;
-    color: #fff;
-    cursor: pointer;
-    display: grid;
-    place-items: center;
-    font-size: 18px;
-    opacity: 0.9;
-  }
-  .sb-item:hover { background: rgba(255,255,255,0.12); }
-  .sb-item:disabled { opacity: 0.4; cursor: not-allowed; }
-  .sb-item.active {
-    background: rgba(255,255,255,0.18);
-    outline: 1px solid rgba(255,255,255,0.16);
-  }
-  
-  /* Main */
-  .main { display: grid; grid-template-rows: 76px 1fr; }
-  
-  /* Topbar */
-  .topbar {
-    background: #fff;
-    border-bottom: 1px solid #e5e7eb;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 0 18px;
-    gap: 12px;
-  }
-  .tb-left { display: grid; gap: 6px; }
-  .tb-title { display: flex; align-items: baseline; gap: 8px; }
-  .tb-title-strong { font-weight: 900; font-size: 16px; }
-  .tb-sub { color: #6b7280; font-size: 12px; }
-  .tb-meta { display: flex; align-items: center; gap: 8px; }
-  .pill {
-    font-size: 12px;
-    padding: 2px 10px;
-    border-radius: 999px;
-    border: 1px solid #e5e7eb;
-    background: #f9fafb;
-    font-weight: 800;
-  }
-  .muted { color: #6b7280; font-size: 12px; }
-  .small { font-size: 12px; }
-  .tb-right { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
-  
-  .content {
-    max-width: 1220px;
-    margin: 0 auto;
-    padding: 16px 18px 44px;
-    display: grid;
-    gap: 14px;
-  }
-  
-  /* Cards */
-  .card {
-    background: #fff;
-    border: 1px solid #e5e7eb;
-    border-radius: 18px;
-    padding: 16px;
-  }
-  .card-head {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 10px;
-    margin-bottom: 10px;
-  }
-  .card-head h2 { margin: 0; font-size: 16px; font-weight: 900; }
-  .head-actions { display: flex; gap: 10px; align-items: center; }
-  
-  .profile {
-    display: grid;
-    grid-template-columns: 72px 1fr auto;
-    gap: 14px;
-    align-items: center;
-  }
-  .avatar {
-    width: 72px;
-    height: 72px;
-    border-radius: 22px;
-    display: grid;
-    place-items: center;
-    font-weight: 1000;
-    font-size: 22px;
-    background: #111827;
-    color: #fff;
-  }
-  .name-row {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-  }
-  .name { font-weight: 1000; font-size: 18px; }
-  .badge {
-    font-size: 12px;
-    padding: 4px 10px;
-    border-radius: 999px;
-    background: #ecfdf5;
-    border: 1px solid #a7f3d0;
-    color: #065f46;
-    font-weight: 900;
-  }
-  .pactions { display: flex; gap: 10px; flex-wrap: wrap; }
-  
-  /* Grid settings */
-  .grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 14px;
-    align-items: start;
-  }
-  .form { display: grid; gap: 12px; }
-  .field { display: grid; gap: 6px; }
-  .label { font-weight: 900; font-size: 12px; color: #374151; }
-  .select {
-    border: 1px solid #e5e7eb;
-    border-radius: 14px;
-    padding: 10px 12px;
-    background: #fff;
-    font-weight: 800;
-  }
-  .check {
-    display: flex;
-    gap: 8px;
-    align-items: center;
-    font-size: 12px;
-    font-weight: 800;
-    color: #374151;
-  }
-  
-  /* Preview */
-  .preview { margin-top: 6px; }
-  .preview-title { font-weight: 1000; margin-bottom: 8px; }
-  .preview-box {
-    border: 1px solid #eef2f7;
-    border-radius: 14px;
-    padding: 12px;
-    background: #fbfcff;
-  }
-  .preview-box[data-scale="sm"] { font-size: 12px; }
-  .preview-box[data-scale="md"] { font-size: 14px; }
-  .preview-box[data-scale="lg"] { font-size: 16px; }
-  .pv-h { font-weight: 1000; margin: 6px 0; }
-  .pv-p { color: #374151; font-weight: 700; line-height: 1.6; }
-  
-  /* Danger */
-  .danger { border-color: #fee2e2; }
-  .danger-body { display: grid; gap: 10px; }
-  .danger-item {
-    border: 1px solid #fee2e2;
-    border-radius: 14px;
-    padding: 12px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 10px;
-    background: #fff;
-  }
-  .danger-title { font-weight: 1000; color: #991b1b; }
-  
-  /* Buttons */
-  .btn {
-    border: 1px solid #e5e7eb;
-    background: #fff;
-    padding: 10px 12px;
-    border-radius: 12px;
-    font-weight: 900;
-    cursor: pointer;
-  }
-  .btn:hover { background: #f9fafb; }
-  .btn-primary { background: #2563eb; border-color: #2563eb; color: #fff; }
-  .btn-primary:hover { background: #1d4ed8; }
-  .btn-outline { border-color: #cbd5e1; }
-  .btn-danger { background: #ef4444; border-color: #ef4444; color: #fff; }
-  .btn-danger:hover { background: #dc2626; }
-  
-  .toast {
-    position: fixed;
-    left: 50%;
-    bottom: 18px;
-    transform: translateX(-50%);
-    padding: 10px 12px;
-    border-radius: 14px;
-    font-weight: 900;
-    border: 1px solid #bfdbfe;
-    background: #eff6ff;
-    color: #1d4ed8;
-  }
-  
-  @media (max-width: 980px) {
-    .grid { grid-template-columns: 1fr; }
-    .profile { grid-template-columns: 72px 1fr; }
-    .pactions { grid-column: 1 / -1; }
-  }
-  @media (max-width: 720px) {
-    .app { grid-template-columns: 62px 1fr; }
-  }
-  </style>
-  
+}
+</script>
+
+<style scoped>
+/* 전역 토큰은 style.css에 있고, 여기선 레이아웃만 */
+.app{
+  min-height: 100vh;
+  display: grid;
+  grid-template-columns: 280px 1fr;
+  font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, "Noto Sans KR", Arial;
+  color: var(--ink);
+  background: var(--bg);
+}
+
+/* Sidebar */
+.sidebar{
+  background: rgba(255,255,255,0.65);
+  border-right: 1px solid var(--line);
+  backdrop-filter: blur(10px);
+  padding: 16px 14px;
+  display:flex;
+  flex-direction: column;
+  gap: 12px;
+}
+:global(:root[data-theme="dark"]) .sidebar{
+  background: rgba(12,23,43,0.72);
+}
+
+.sb-brand{ display:flex; align-items:center; gap: 10px; padding: 8px 6px; }
+.sb-logo{
+  width: 36px; height: 36px; border-radius: 12px;
+  background: rgba(255,255,255,0.7);
+  border: 1px solid var(--line);
+  display:grid; place-items:center;
+  overflow:hidden;
+}
+:global(:root[data-theme="dark"]) .sb-logo{ background: rgba(255,255,255,0.06); }
+.sb-logo img{ width: 22px; height: 22px; object-fit: contain; }
+.sb-name{ font-weight: 1000; letter-spacing: -0.2px; }
+
+.sb-search{ padding: 0 6px 6px; }
+.sb-input{
+  width:100%;
+  border:1px solid var(--line);
+  border-radius: 12px;
+  padding: 10px 12px;
+  background: rgba(255,255,255,0.7);
+  outline:none;
+  font-weight: 900;
+}
+:global(:root[data-theme="dark"]) .sb-input{ background: rgba(255,255,255,0.06); color: var(--ink); }
+.sb-input:focus{ box-shadow: 0 0 0 3px rgba(90,167,255,0.18); }
+
+.sb-nav{ display:grid; gap: 6px; padding: 0 6px; }
+.sb-item{
+  width:100%;
+  display:flex;
+  align-items:center;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: 14px;
+  border:1px solid transparent;
+  background: transparent;
+  cursor:pointer;
+  color: var(--ink);
+  font-weight: 950;
+  text-align:left;
+}
+.sb-item:hover{
+  background: rgba(90,167,255,0.10);
+  border-color: rgba(90,167,255,0.18);
+}
+.sb-item.active{
+  background: rgba(90,167,255,0.16);
+  border-color: rgba(90,167,255,0.26);
+}
+.ico{ width: 18px; display:grid; place-items:center; }
+.txt{ font-size: 13px; }
+
+.sb-sep{ height: 1px; background: var(--line); margin: 6px 0; }
+
+.sb-bottom{
+  margin-top:auto;
+  display:flex;
+  gap: 8px;
+  padding: 8px 6px 0;
+}
+.sb-mini{
+  width: 40px; height: 40px;
+  border-radius: 14px;
+  border: 1px solid var(--line);
+  background: rgba(255,255,255,0.7);
+  cursor:pointer;
+  font-size: 16px;
+}
+:global(:root[data-theme="dark"]) .sb-mini{ background: rgba(255,255,255,0.06); color: var(--ink); }
+.sb-mini:hover{ filter: brightness(0.99); }
+
+/* Main */
+.main{ display:flex; flex-direction: column; min-width: 0; }
+
+.top{ position: relative; padding: 22px 24px 18px; }
+.top-bg{
+  position:absolute; inset: 0;
+  background: linear-gradient(135deg,
+    rgba(90,167,255,0.60),
+    rgba(139,220,255,0.45),
+    rgba(125,140,255,0.40)
+  );
+  border-bottom: 1px solid var(--line);
+}
+:global(:root[data-theme="dark"]) .top-bg{
+  background: linear-gradient(135deg,
+    rgba(20,52,96,0.85),
+    rgba(10,92,112,0.55),
+    rgba(48,36,110,0.55)
+  );
+}
+
+.top-inner{
+  position: relative;
+  max-width: 1180px;
+  margin: 0 auto;
+  display:flex;
+  justify-content: space-between;
+  gap: 16px;
+  align-items: flex-end;
+}
+.crumb{ display:flex; align-items:center; gap: 8px; margin-bottom: 8px; }
+.pill{
+  font-size: 12px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: rgba(255,255,255,0.55);
+  border: 1px solid rgba(255,255,255,0.45);
+  font-weight: 1000;
+}
+:global(:root[data-theme="dark"]) .pill{ background: rgba(12,23,43,0.55); border-color: var(--line); }
+.dot{ opacity: .7; }
+.title{ margin:0; font-size: 28px; font-weight: 1100; letter-spacing: -0.4px; }
+.sub{ margin: 8px 0 0; }
+
+.top-right{ display:flex; gap: 10px; align-items:center; flex-wrap: wrap; }
+
+/* Content */
+.content{
+  max-width: 1180px;
+  margin: 0 auto;
+  width: 100%;
+  padding: 18px 24px 40px;
+  display:grid;
+  gap: 14px;
+}
+.profile-card{ padding: 18px; }
+
+.pc-head{
+  display:flex;
+  align-items:center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+.avatar{ position: relative; width: 74px; height: 74px; }
+.avatar-ring{
+  position:absolute; inset: -3px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, rgba(90,167,255,1), rgba(139,220,255,1));
+  filter: blur(0px);
+}
+.avatar-img{
+  position:absolute; inset: 0;
+  border-radius: 50%;
+  background: var(--card-solid);
+  border: 1px solid var(--line);
+  display:grid; place-items:center;
+  font-weight: 1100;
+  letter-spacing: -0.3px;
+}
+.name{ font-weight: 1100; font-size: 18px; }
+.email{ margin-top: 2px; }
+.meta-line{ margin-top: 8px; display:flex; gap: 10px; align-items:center; flex-wrap: wrap; }
+.tag{
+  font-size: 12px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  background: rgba(255,255,255,0.55);
+  font-weight: 1000;
+}
+:global(:root[data-theme="dark"]) .tag{ background: rgba(255,255,255,0.04); }
+
+.sep{ opacity: .6; }
+.pc-actions{ display:flex; gap: 10px; flex-wrap: wrap; }
+
+/* Grid for cards + panel */
+.grid{
+  display:grid;
+  grid-template-columns: 1fr 1fr 1fr 360px;
+  gap: 14px;
+  align-items: start;
+}
+
+.card{
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  box-shadow: var(--shadow);
+  padding: 16px;
+  backdrop-filter: blur(10px);
+}
+
+.card-head{
+  display:flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+.card-head h2{ margin:0; font-size: 16px; font-weight: 1100; }
+.badge{
+  font-size: 12px;
+  font-weight: 1100;
+  padding: 6px 10px;
+  border-radius: 999px;
+  background: rgba(90,167,255,0.14);
+  border: 1px solid rgba(90,167,255,0.22);
+}
+
+.form{ display:grid; gap: 12px; }
+.field{ display:grid; gap: 8px; }
+.label{ font-size: 12px; font-weight: 1000; color: var(--muted); }
+
+.input{
+  width: 100%;
+  padding: 12px 12px;
+  border-radius: 14px;
+  border: 1px solid var(--line);
+  background: rgba(255,255,255,0.7);
+  outline: none;
+  font-weight: 950;
+}
+:global(:root[data-theme="dark"]) .input{ background: rgba(255,255,255,0.06); color: var(--ink); }
+
+.select{
+  width: 100%;
+  padding: 12px 12px;
+  border-radius: 14px;
+  border: 1px solid var(--line);
+  background: rgba(255,255,255,0.7);
+  outline: none;
+  font-weight: 950;
+}
+:global(:root[data-theme="dark"]) .select{ background: rgba(255,255,255,0.06); color: var(--ink); }
+
+.help{ font-size: 12px; }
+
+.range{ width: 100%; }
+.range-row{ display:flex; justify-content: space-between; align-items:center; }
+
+.seg{ display:flex; gap: 8px; flex-wrap: wrap; }
+.seg-btn{
+  border-radius: 14px;
+  padding: 10px 12px;
+  font-weight: 1100;
+  cursor:pointer;
+  border: 1px solid var(--line);
+  background: rgba(255,255,255,0.7);
+}
+:global(:root[data-theme="dark"]) .seg-btn{ background: rgba(255,255,255,0.06); color: var(--ink); }
+.seg-btn.on{
+  border-color: rgba(90,167,255,0.35);
+  background: rgba(90,167,255,0.14);
+}
+
+.toggle{
+  display:flex;
+  align-items:center;
+  gap: 10px;
+}
+.toggle input{ display:none; }
+.knob{
+  width: 46px; height: 26px;
+  border-radius: 999px;
+  background: rgba(148,163,184,0.35);
+  position: relative;
+  border: 1px solid var(--line);
+}
+.knob::after{
+  content:"";
+  position:absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  left: 3px;
+  width: 20px; height: 20px;
+  border-radius: 50%;
+  background: var(--card-solid);
+  transition: all .18s ease;
+}
+.toggle input:checked + .knob{
+  background: rgba(90,167,255,0.40);
+}
+.toggle input:checked + .knob::after{
+  left: 23px;
+}
+
+.row{ display:flex; gap: 10px; flex-wrap: wrap; }
+
+/* Panel */
+.panel{ grid-column: 4 / 5; }
+.panel-card{
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  padding: 14px;
+  box-shadow: var(--shadow);
+  backdrop-filter: blur(10px);
+}
+.panel-head{
+  display:flex;
+  justify-content: space-between;
+  align-items:center;
+  margin-bottom: 10px;
+}
+.panel-title{ font-weight: 1100; }
+.panel-dot{ width: 10px; height: 10px; border-radius: 50%; background: rgba(90,167,255,0.9); }
+.preview{ margin-top: 8px; }
+.pv-title{ font-weight: 1100; margin-bottom: 8px; }
+.pv-list{ margin: 0; padding-left: 18px; display:grid; gap: 8px; color: var(--muted); font-weight: 850; }
+.full{ width: 100%; margin-top: 12px; }
+.mono{ font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; font-weight: 1100; }
+
+/* Buttons */
+.btn{
+  border-radius: 14px;
+  padding: 10px 12px;
+  font-weight: 1100;
+  cursor: pointer;
+  border: 1px solid transparent;
+  background: rgba(255,255,255,0.75);
+}
+:global(:root[data-theme="dark"]) .btn{ background: rgba(255,255,255,0.06); color: var(--ink); border-color: var(--line); }
+.btn-primary{
+  background: linear-gradient(90deg, rgba(90,167,255,1), rgba(139,220,255,1));
+  color: #071221;
+  border-color: rgba(90,167,255,0.35);
+}
+.btn-outline{ border-color: var(--line); }
+.btn-ghost{ background: transparent; border-color: var(--line); }
+
+@media (max-width: 1180px){
+  .grid{ grid-template-columns: 1fr 1fr; }
+  .panel{ grid-column: auto; }
+}
+@media (max-width: 1040px){
+  .app{ grid-template-columns: 240px 1fr; }
+}
+@media (max-width: 820px){
+  .app{ grid-template-columns: 1fr; }
+  .sidebar{ display:none; }
+}
+</style>

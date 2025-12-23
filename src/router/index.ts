@@ -11,6 +11,10 @@ import TermsPage from "@/pages/TermsPage.vue";
 import QaPage from "@/pages/QaPage.vue";
 import ProfilePage from "@/pages/ProfilePage.vue";
 import AdminPage from "@/pages/AdminPage.vue";
+import ResetPasswordPage from "@/pages/ResetPasswordPage.vue";
+
+
+
 
 
 
@@ -28,6 +32,9 @@ const routes: RouteRecordRaw[] = [
   { path: "/qa", name: "qa", component: QaPage },
   { path: "/profile", name: "profile", component: ProfilePage },
   { path: "/admin", name: "admin", component: AdminPage },
+  { path: "/reset-password", name: "resetPassword", component: ResetPasswordPage },
+
+
 ];
 
 const router = createRouter({
