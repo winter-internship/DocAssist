@@ -4,7 +4,15 @@
       <!-- LEFT: Gradient Panel -->
       <section class="left">
         <div class="left-top">
-          <img class="logo" src="/logo.png" alt="DocAssist" />
+          <img
+            class="logo"
+            src="/logo.png"
+            alt="DocAssist"
+            role="button"
+            tabindex="0"
+            @click="goHome"
+            @keydown.enter="goHome"
+          />
         </div>
 
         <div class="left-center">
@@ -15,7 +23,7 @@
         </div>
 
         <div class="left-bottom">
-          <div class="mini">© {{ new Date().getFullYear() }} DocAssist</div>
+          <div class="mini">© {{ new Date().getFullYear() }} DoQ</div>
         </div>
       </section>
 
@@ -100,6 +108,9 @@ const showPassword = ref(false);
 const loading = ref(false);
 const error = ref("");
 
+function goHome() {
+  router.push({ name: "home" }).catch(() => {});
+}
 function goForgot() {
   router.push({ name: "forgotPassword" }).catch(() => {});
 }
@@ -112,13 +123,10 @@ async function onSubmit() {
   loading.value = true;
 
   try {
-    // 데모 검증 (나중에 FastAPI 연동)
     if (!email.value.includes("@")) throw new Error("이메일 형식이 올바르지 않아요.");
     if (password.value.length < 8) throw new Error("비밀번호는 8자 이상이어야 해요.");
 
-    // TODO: FastAPI 연결 시
-    // POST /auth/login { email, password, rememberMe }
-
+    // ✅ 데모/주석 문구 제거 (실제 연동 시 여기서 API 호출)
     router.push({ name: "home" }).catch(() => {});
   } catch (e: any) {
     error.value = e?.message ?? "로그인에 실패했어요.";
@@ -211,6 +219,7 @@ async function onSubmit() {
   object-fit: contain;
   border-radius: 10px;
   filter: drop-shadow(0 10px 18px rgba(0,0,0,0.22));
+  cursor: pointer;
 }
 
 .left-center {
@@ -352,7 +361,7 @@ async function onSubmit() {
   border: none;
   border-radius: 10px;
   font-weight: 1000;
-  color: #fff;
+  color: #000; /* ✅ 로그인 버튼 글자 검정 */
   cursor: pointer;
   background: linear-gradient(90deg, var(--b1), var(--b2));
   box-shadow: 0 14px 24px rgba(14,165,233,0.20);

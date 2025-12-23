@@ -4,16 +4,25 @@
       <!-- LEFT -->
       <section class="left">
         <div class="left-top">
-          <img class="logo" src="/logo.png" alt="DocAssist" />
+          <!-- ✅ 로고 클릭 시 홈으로 -->
+          <img
+            class="logo"
+            src="/logo.png"
+            alt="DocAssist"
+            @click="goHome"
+            role="button"
+            tabindex="0"
+            @keydown.enter="goHome"
+          />
         </div>
 
         <div class="left-center">
-          <div class="welcome">Join<br />DocAssist</div>
+          <div class="welcome">Join<br />DoQ</div>
           <div class="left-sub">AI 문서 이해 보조를 시작해요</div>
         </div>
 
         <div class="left-bottom">
-          <div class="mini">© {{ new Date().getFullYear() }} DocAssist</div>
+          <div class="mini">© {{ new Date().getFullYear() }} DoQ</div>
         </div>
       </section>
 
@@ -23,6 +32,19 @@
         <p class="desc">이메일과 비밀번호로 계정을 생성하세요.</p>
 
         <form class="form" @submit.prevent="onSubmit">
+          <!-- ✅ 추가: 이름 -->
+          <label class="field">
+            <span class="label">Name</span>
+            <input
+              class="input"
+              type="text"
+              placeholder="your name"
+              v-model="name"
+              autocomplete="name"
+              required
+            />
+          </label>
+
           <label class="field">
             <span class="label">Email</span>
             <input
@@ -71,20 +93,25 @@
             </div>
           </label>
 
-          <label class="agree">
-            <input type="checkbox" v-model="agree" />
+          <!-- ✅ 체크박스 토글 유지 + 이용약관 버튼 클릭은 체크에 영향 없게 -->
+          <label class="agree" for="agreeChk">
+            <input id="agreeChk" type="checkbox" v-model="agree" />
             <span>
-              <button class="link inline" type="button" @click="goTerms">이용약관</button>
+              <button class="link inline" type="button" @click.stop.prevent="goTerms">
+                이용약관
+              </button>
               및 개인정보 처리에 동의합니다
             </span>
           </label>
 
+          <!-- ✅ 확인버튼(=회원가입 제출 버튼) -->
           <button class="btn" type="submit" :disabled="loading">
-            {{ loading ? "Creating..." : "Create account" }}
+            {{ loading ? "Creating..." : "확인" }}
           </button>
 
           <div v-if="error" class="error">{{ error }}</div>
 
+          <!-- ✅ 로그인 넘어가는 버튼 -->
           <div class="footer">
             <span class="muted">Already a user?</span>
             <button class="link strong" type="button" @click="goLogin">Login</button>
@@ -103,6 +130,7 @@ import { useRouter } from "vue-router";
 
 const router = useRouter();
 
+const name = ref(""); // ✅ 추가
 const email = ref("");
 const password = ref("");
 const confirm = ref("");
@@ -114,6 +142,9 @@ const showConfirm = ref(false);
 const loading = ref(false);
 const error = ref("");
 
+function goHome() {
+  router.push({ name: "home" }).catch(() => {});
+}
 function goLogin() {
   router.push({ name: "login" }).catch(() => {});
 }
@@ -126,13 +157,14 @@ async function onSubmit() {
   loading.value = true;
 
   try {
+    if (!name.value.trim()) throw new Error("이름을 입력해 주세요.");
     if (!email.value.includes("@")) throw new Error("이메일 형식이 올바르지 않아요.");
     if (password.value.length < 8) throw new Error("비밀번호는 8자 이상이어야 해요.");
     if (password.value !== confirm.value) throw new Error("비밀번호가 서로 달라요.");
     if (!agree.value) throw new Error("약관 동의가 필요해요.");
 
     // TODO: FastAPI 연결
-    // POST /auth/signup { email, password }
+    // POST /auth/signup { name, email, password }
 
     router.push({ name: "login" }).catch(() => {});
   } catch (e: any) {
@@ -278,7 +310,7 @@ async function onSubmit() {
   border: none;
   border-radius: 10px;
   font-weight: 1000;
-  color: #fff;
+  color: #000;
   cursor: pointer;
   background: linear-gradient(90deg, var(--b1), var(--b2));
   box-shadow: 0 14px 24px rgba(14,165,233,0.20);

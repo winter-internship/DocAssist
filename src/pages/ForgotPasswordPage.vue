@@ -4,10 +4,18 @@
       <!-- Left visual -->
       <section class="left">
         <div class="brand">
-          <img class="logo" src="/logo.png" alt="DocAssist" />
+          <img
+            class="logo"
+            src="/logo.png"
+            alt="DocAssist"
+            @click="goHome"
+            role="button"
+            tabindex="0"
+            @keydown.enter="goHome"
+          />
           <div class="brand-text">
-            <div class="brand-title">DocAssist</div>
-            <div class="brand-sub">AI Document Assistant</div>
+            <div class="brand-title">DoQ</div>
+            <div class="brand-sub">AI 기반 개인 문서 이해 보조 시스템</div>
           </div>
         </div>
 
@@ -52,15 +60,11 @@
             </div>
 
             <div class="row">
-              <button class="link" type="button" @click="goLogin">로그인으로</button>
+              <button class="link" type="button" @click="goLogin">로그인</button>
               <span class="dot">·</span>
               <button class="link" type="button" @click="goSignup">회원가입</button>
             </div>
           </form>
-
-          <div class="foot muted">
-            (데모) 실제 연동 시: FastAPI <span class="mono">POST /auth/forgot-password</span>
-          </div>
         </div>
       </section>
     </div>
@@ -77,6 +81,9 @@ const email = ref("");
 const loading = ref(false);
 const info = ref("");
 
+function goHome() {
+  router.push({ name: "home" }).catch(() => {});
+}
 function goLogin() {
   router.push({ name: "login" }).catch(() => {});
 }
@@ -89,11 +96,11 @@ async function submit() {
   loading.value = true;
 
   try {
-    // ✅ 데모: 실제로는 FastAPI 호출
+    // 실제로는 FastAPI 호출로 교체
     // await fetch("/api/auth/forgot-password", { method:"POST", body: JSON.stringify({ email: email.value }) })
     await new Promise((r) => setTimeout(r, 700));
 
-    info.value = `전송 완료(데모): ${email.value} 로 재설정 링크를 보냈다고 가정합니다.`;
+    info.value = "재설정 링크를 전송했어요. 메일함을 확인해 주세요.";
   } finally {
     loading.value = false;
   }
@@ -144,6 +151,7 @@ async function submit() {
   background: rgba(255,255,255,0.18);
   border-radius: 12px;
   padding: 6px;
+  cursor: pointer;
 }
 .brand-title { font-weight: 1000; font-size: 16px; }
 .brand-sub { opacity: 0.88; font-weight: 800; font-size: 12px; margin-top: 2px; }
@@ -265,15 +273,6 @@ async function submit() {
 }
 .link:hover { background: rgba(37,99,235,0.08); }
 .dot { color: #cbd5e1; }
-
-.foot {
-  margin-top: 14px;
-  font-size: 12px;
-}
-.mono {
-  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
-  font-weight: 1000;
-}
 
 /* Responsive */
 @media (max-width: 920px) {
