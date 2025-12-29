@@ -3,43 +3,97 @@ import { createRouter, createWebHistory, RouteRecordRaw } from "vue-router";
 import DashboardHome from "@/pages/DashboardHome.vue";
 import UploadPage from "@/pages/UploadPage.vue";
 import DocComparePage from "@/pages/DocComparePage.vue";
-import DrivePage from "@/pages/DrivePage.vue"; // ✅ 추가
+import DrivePage from "@/pages/DrivePage.vue";
 import LoginPage from "@/pages/LoginPage.vue";
 import SignupPage from "@/pages/SignupPage.vue";
 import ForgotPasswordPage from "@/pages/ForgotPasswordPage.vue";
+import ResetPasswordPage from "@/pages/ResetPasswordPage.vue";
 import TermsPage from "@/pages/TermsPage.vue";
 import QaPage from "@/pages/QaPage.vue";
 import ProfilePage from "@/pages/ProfilePage.vue";
 import AdminPage from "@/pages/AdminPage.vue";
-import ResetPasswordPage from "@/pages/ResetPasswordPage.vue";
 
+type Role = "USER" | "ADMIN";
 
+/**
+ * 🔐 인증 정보 읽기 (데모 기준)
+ */
+function getAuth() {
+  const token = localStorage.getItem("access_token");
+  const role = (localStorage.getItem("role") as Role | null) ?? "USER";
 
-
-
-
-
+  return {
+    isAuthed: !!token,
+    role,
+  };
+}
 
 const routes: RouteRecordRaw[] = [
-  { path: "/", name: "home", component: DashboardHome },
-  { path: "/upload", name: "upload", component: UploadPage },
-  { path: "/drive", name: "drive", component: DrivePage }, // ✅ 추가
-  { path: "/docs/:id", name: "documentView", component: DocComparePage },
-  { path: "/login", name: "login", component: LoginPage },
-  { path: "/signup", name: "signup", component: SignupPage },
-  { path: "/forgot-password", name: "forgotPassword", component: ForgotPasswordPage },
+  /* =======================
+     로그인 필요 페이지
+     ======================= */
+  { path: "/", name: "home", component: DashboardHome, meta: { requiresAuth: true } },
+  { path: "/upload", name: "upload", component: UploadPage, meta: { requiresAuth: true } },
+  { path: "/drive", name: "drive", component: DrivePage, meta: { requiresAuth: true } },
+  { path: "/docs/:id", name: "documentView", component: DocComparePage, meta: { requiresAuth: true } },
+  { path: "/qa", name: "qa", component: QaPage, meta: { requiresAuth: true } },
+  { path: "/profile", name: "profile", component: ProfilePage, meta: { requiresAuth: true } },
+
+  /* =======================
+     관리자 전용
+     ======================= */
+  {
+    path: "/admin",
+    name: "admin",
+    component: AdminPage,
+    meta: { requiresAdmin: true },
+  },
+
+  /* =======================
+     게스트 전용
+     ======================= */
+  { path: "/login", name: "login", component: LoginPage, meta: { requiresGuest: true } },
+  { path: "/signup", name: "signup", component: SignupPage, meta: { requiresGuest: true } },
+  { path: "/forgot-password", name: "forgotPassword", component: ForgotPasswordPage, meta: { requiresGuest: true } },
+  { path: "/reset-password", name: "resetPassword", component: ResetPasswordPage, meta: { requiresGuest: true } },
+
+  /* =======================
+     공용
+     ======================= */
   { path: "/terms", name: "terms", component: TermsPage },
-  { path: "/qa", name: "qa", component: QaPage },
-  { path: "/profile", name: "profile", component: ProfilePage },
-  { path: "/admin", name: "admin", component: AdminPage },
-  { path: "/reset-password", name: "resetPassword", component: ResetPasswordPage },
-
-
 ];
 
 const router = createRouter({
   history: createWebHistory(),
   routes,
+});
+
+/**
+ * 🛡️ Global Guard
+ */
+router.beforeEach((to) => {
+  const { isAuthed, role } = getAuth();
+
+  const requiresAuth = Boolean(to.meta.requiresAuth);
+  const requiresAdmin = Boolean(to.meta.requiresAdmin);
+  const requiresGuest = Boolean(to.meta.requiresGuest);
+
+  // 1️⃣ 로그인 필요
+  if (requiresAuth && !isAuthed) {
+    return { name: "login", query: { redirect: to.fullPath } };
+  }
+
+  // 2️⃣ 게스트 전용
+  if (requiresGuest && isAuthed) {
+    return { name: "home" };
+  }
+
+  // 3️⃣ 관리자 전용
+  if (requiresAdmin && role !== "ADMIN") {
+    return { name: "home" }; // 또는 403 페이지
+  }
+
+  return true;
 });
 
 export default router;

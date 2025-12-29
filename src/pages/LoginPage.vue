@@ -1,25 +1,24 @@
 <template>
   <div class="page">
     <div class="shell">
-      <!-- LEFT: Gradient Panel -->
+      <!-- LEFT -->
       <section class="left">
         <div class="left-top">
+          <!-- ✅ 로고 클릭 시 홈으로 -->
           <img
             class="logo"
             src="/logo.png"
             alt="DocAssist"
+            @click="goHome"
             role="button"
             tabindex="0"
-            @click="goHome"
             @keydown.enter="goHome"
           />
         </div>
 
         <div class="left-center">
-          <div class="welcome">Welcome<br />Back!</div>
-          <div class="left-sub">
-            DoQ · AI 기반 문서 이해 보조 시스템
-          </div>
+          <div class="welcome">Welcome<br />Back</div>
+          <div class="left-sub">AI 문서 이해 보조를 계속해요</div>
         </div>
 
         <div class="left-bottom">
@@ -27,18 +26,18 @@
         </div>
       </section>
 
-      <!-- RIGHT: Login Form -->
+      <!-- RIGHT -->
       <section class="right">
         <h1 class="title">Login</h1>
-        <p class="desc">Welcome back! Please login to your account.</p>
+        <p class="desc">이메일과 비밀번호로 로그인하세요.</p>
 
-        <form class="form" @submit.prevent="onSubmit">
+        <form class="form" @submit.prevent="login">
           <label class="field">
             <span class="label">Email</span>
             <input
               class="input"
               type="email"
-              placeholder="username@gmail.com"
+              placeholder="you@example.com"
               v-model="email"
               autocomplete="email"
               required
@@ -47,15 +46,13 @@
 
           <label class="field">
             <span class="label">Password</span>
-
             <div class="pw-wrap">
               <input
                 class="input"
                 :type="showPassword ? 'text' : 'password'"
-                placeholder="********"
+                placeholder="your password"
                 v-model="password"
                 autocomplete="current-password"
-                minlength="8"
                 required
               />
               <button class="eye" type="button" @click="showPassword = !showPassword">
@@ -64,32 +61,20 @@
             </div>
           </label>
 
-          <div class="row">
-            <label class="remember">
-              <input type="checkbox" v-model="rememberMe" />
-              <span>Remember Me</span>
-            </label>
-
-            <button class="link" type="button" @click="goForgot">
-              Forget Password?
-            </button>
-          </div>
-
-          <button class="btn" type="submit" :disabled="loading">
-            {{ loading ? "Logging in..." : "Login" }}
+          <button class="btn" type="submit">
+            로그인
           </button>
 
-          <div v-if="error" class="error">{{ error }}</div>
-
           <div class="footer">
-            <span class="muted">New User?</span>
+            <button class="link" type="button" @click="goForgot">비밀번호 찾기</button>
+            <span class="muted">·</span>
+            <span class="muted">계정이 없으신가요?</span>
             <button class="link strong" type="button" @click="goSignup">Signup</button>
           </div>
         </form>
       </section>
     </div>
 
-    <!-- background -->
     <div class="bg" />
   </div>
 </template>
@@ -102,46 +87,58 @@ const router = useRouter();
 
 const email = ref("");
 const password = ref("");
-const rememberMe = ref(true);
 const showPassword = ref(false);
 
-const loading = ref(false);
-const error = ref("");
+/**
+ * ✅ 관리자 이메일 목록
+ * → 이 이메일로 로그인하면 ADMIN 권한
+ */
+const ADMIN_EMAILS = [
+  "abcd63980041@gmail.com",
+  "jyerin0426@gmail.com",
+  "abc0041d@gmail.com",
+];
+
+/**
+ * ✅ 로그인 (데모용)
+ */
+function login() {
+  // 토큰 저장 (데모)
+  localStorage.setItem("access_token", "demo-token");
+
+  // 사용자 정보 저장
+  localStorage.setItem("user_email", email.value);
+  localStorage.setItem("user_name", email.value.split("@")[0]);
+  localStorage.setItem("last_login_at", new Date().toISOString());
+
+  // 관리자 판별
+  if (ADMIN_EMAILS.includes(email.value)) {
+    localStorage.setItem("role", "ADMIN");
+  } else {
+    localStorage.setItem("role", "USER");
+  }
+
+  // 홈으로 이동
+  router.push({ name: "home" });
+}
+
+function goSignup() {
+  router.push({ name: "signup" });
+}
+
+function goForgot() {
+  router.push({ name: "forgotPassword" });
+}
 
 function goHome() {
-  router.push({ name: "home" }).catch(() => {});
-}
-function goForgot() {
-  router.push({ name: "forgotPassword" }).catch(() => {});
-}
-function goSignup() {
-  router.push({ name: "signup" }).catch(() => {});
-}
-
-async function onSubmit() {
-  error.value = "";
-  loading.value = true;
-
-  try {
-    if (!email.value.includes("@")) throw new Error("이메일 형식이 올바르지 않아요.");
-    if (password.value.length < 8) throw new Error("비밀번호는 8자 이상이어야 해요.");
-
-    // ✅ 데모/주석 문구 제거 (실제 연동 시 여기서 API 호출)
-    router.push({ name: "home" }).catch(() => {});
-  } catch (e: any) {
-    error.value = e?.message ?? "로그인에 실패했어요.";
-  } finally {
-    loading.value = false;
-  }
+  router.push({ name: "home" });
 }
 </script>
 
 <style scoped>
-/* ===== theme (blue) ===== */
 :root {
-  --b1: #1d4ed8; /* blue-700 */
-  --b2: #0ea5e9; /* sky-500 */
-  --b3: #22c55e; /* tiny accent (optional) */
+  --b1: #1d4ed8;
+  --b2: #0ea5e9;
   --ink: #111827;
   --muted: #6b7280;
   --line: #e5e7eb;
@@ -182,14 +179,15 @@ async function onSubmit() {
   z-index: 1;
 }
 
-/* ===== left panel ===== */
+/* left */
 .left {
   position: relative;
   color: #fff;
   padding: 26px 26px 18px;
   background: linear-gradient(135deg, rgba(29,78,216,0.95), rgba(14,165,233,0.90));
+  display: flex;
+  flex-direction: column;
 }
-
 .left::before {
   content: "";
   position: absolute;
@@ -200,93 +198,33 @@ async function onSubmit() {
   transform: rotate(10deg);
   opacity: 0.9;
 }
-
-.left-top,
-.left-center,
-.left-bottom {
-  position: relative;
-  z-index: 1;
-}
-
-.left-top {
-  display: flex;
-  align-items: center;
-}
-
+.left-top, .left-center, .left-bottom { position: relative; z-index: 1; }
+.left-top { display: flex; align-items: center; }
 .logo {
-  width: 34px;
-  height: 34px;
-  object-fit: contain;
-  border-radius: 10px;
+  width: 34px; height: 34px; object-fit: contain; border-radius: 10px;
   filter: drop-shadow(0 10px 18px rgba(0,0,0,0.22));
   cursor: pointer;
 }
-
-.left-center {
-  margin-top: 68px;
-}
-
+.left-center { margin-top: 68px; flex: 1; }
 .welcome {
   font-weight: 1000;
-  font-size: 60px;
+  font-size: 56px;
   line-height: 1.02;
   letter-spacing: -0.8px;
   text-shadow: 0 18px 30px rgba(0, 0, 0, 0.18);
 }
+.left-sub { margin-top: 16px; font-weight: 800; opacity: 0.9; }
+.left-bottom { margin-top: auto; padding-top: 80px; }
+.mini { font-weight: 800; opacity: 0.7; font-size: 12px; }
 
-.left-sub {
-  margin-top: 16px;
-  font-weight: 800;
-  opacity: 0.9;
-}
+/* right */
+.right { padding: 46px 46px 34px; display: grid; align-content: start; }
+.title { margin: 0; font-size: 32px; font-weight: 1000; color: var(--ink); }
+.desc { margin: 10px 0 22px; color: var(--muted); font-weight: 700; font-size: 13px; }
 
-.left-bottom {
-  margin-top: auto;
-  padding-top: 80px;
-}
-
-.mini {
-  font-weight: 800;
-  opacity: 0.7;
-  font-size: 12px;
-}
-
-/* ===== right panel ===== */
-.right {
-  padding: 46px 46px 34px;
-  display: grid;
-  align-content: start;
-}
-
-.title {
-  margin: 0;
-  font-size: 32px;
-  font-weight: 1000;
-  color: var(--ink);
-}
-
-.desc {
-  margin: 10px 0 22px;
-  color: var(--muted);
-  font-weight: 700;
-  font-size: 13px;
-}
-
-.form {
-  display: grid;
-  gap: 16px;
-}
-
-.field {
-  display: grid;
-  gap: 8px;
-}
-
-.label {
-  font-size: 12px;
-  color: #9ca3af;
-  font-weight: 900;
-}
+.form { display: grid; gap: 16px; }
+.field { display: grid; gap: 8px; }
+.label { font-size: 12px; color: #9ca3af; font-weight: 900; }
 
 .input {
   width: 100%;
@@ -298,20 +236,10 @@ async function onSubmit() {
   color: var(--ink);
   background: #fff;
 }
+.input:focus { border-color: rgba(29,78,216,0.35); box-shadow: 0 0 0 3px var(--ring); }
 
-.input:focus {
-  border-color: rgba(29,78,216,0.35);
-  box-shadow: 0 0 0 3px var(--ring);
-}
-
-.pw-wrap {
-  position: relative;
-}
-
-.pw-wrap .input {
-  padding-right: 70px;
-}
-
+.pw-wrap { position: relative; }
+.pw-wrap .input { padding-right: 70px; }
 .eye {
   position: absolute;
   top: 50%;
@@ -327,33 +255,7 @@ async function onSubmit() {
   font-size: 12px;
   color: #374151;
 }
-
-.eye:hover {
-  background: #f9fafb;
-}
-
-.row {
-  margin-top: 2px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 10px;
-}
-
-.remember {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 12px;
-  color: #374151;
-  font-weight: 800;
-}
-
-.remember input {
-  width: 16px;
-  height: 16px;
-  accent-color: var(--b1);
-}
+.eye:hover { background: #f9fafb; }
 
 .btn {
   margin-top: 6px;
@@ -361,20 +263,13 @@ async function onSubmit() {
   border: none;
   border-radius: 10px;
   font-weight: 1000;
-  color: #000; /* ✅ 로그인 버튼 글자 검정 */
+  color: #fff;
   cursor: pointer;
   background: linear-gradient(90deg, var(--b1), var(--b2));
   box-shadow: 0 14px 24px rgba(14,165,233,0.20);
 }
-
-.btn:hover {
-  filter: brightness(0.98);
-}
-
-.btn:disabled {
-  opacity: 0.7;
-  cursor: not-allowed;
-}
+.btn:hover { filter: brightness(0.98); }
+.btn:disabled { opacity: 0.7; cursor: not-allowed; }
 
 .link {
   border: none;
@@ -386,53 +281,23 @@ async function onSubmit() {
   border-radius: 8px;
   font-size: 12px;
 }
+.link:hover { background: rgba(29, 78, 216, 0.08); }
+.link.strong { padding: 0 6px; }
 
-.link:hover {
-  background: rgba(29, 78, 216, 0.08);
+.footer { 
+  margin-top: 10px; 
+  display: flex; 
+  gap: 6px; 
+  align-items: center; 
+  justify-content: center; 
+  flex-wrap: wrap;
 }
+.muted { color: #9ca3af; font-weight: 800; font-size: 12px; }
 
-.link.strong {
-  font-size: 12px;
-  padding: 0 6px;
-}
-
-.footer {
-  margin-top: 10px;
-  display: flex;
-  gap: 6px;
-  align-items: center;
-  justify-content: center;
-}
-
-.muted {
-  color: #9ca3af;
-  font-weight: 800;
-  font-size: 12px;
-}
-
-.error {
-  border: 1px solid #fecaca;
-  background: #fef2f2;
-  color: #991b1b;
-  border-radius: 12px;
-  padding: 10px 12px;
-  font-weight: 900;
-  font-size: 12px;
-}
-
-/* responsive */
 @media (max-width: 900px) {
-  .shell {
-    grid-template-columns: 1fr;
-  }
-  .left-center {
-    margin-top: 26px;
-  }
-  .welcome {
-    font-size: 46px;
-  }
-  .right {
-    padding: 28px 22px 22px;
-  }
+  .shell { grid-template-columns: 1fr; }
+  .left-center { margin-top: 26px; }
+  .welcome { font-size: 44px; }
+  .right { padding: 28px 22px 22px; }
 }
 </style>
