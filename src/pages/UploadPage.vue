@@ -1,24 +1,53 @@
-<template>
+﻿<template>
   <div class="app">
     <!-- Sidebar -->
     <aside class="sidebar">
-      <div class="sb-top">
-        <div class="sb-logo">AI</div>
+      <div class="sb-brand">
+        <div class="sb-logo">
+          <img src="/logo.png" alt="DoQ" />
+        </div>
+        <div class="sb-name">DoQ</div>
+      </div>
+
+      <div class="sb-search">
+        <input class="sb-input" placeholder="Search" v-model="sidebarQ" />
       </div>
 
       <nav class="sb-nav">
-        <button class="sb-item" title="대시보드" @click="go('home')">🏠</button>
-        <button class="sb-item active" title="업로드" @click="go('upload')">⬆️</button>
-        <button class="sb-item" title="드라이브(준비중)" disabled>🗂️</button>
-        <button class="sb-item" title="문서보기(준비중)" disabled>📄</button>
-        <button class="sb-item" title="Q&A(준비중)" disabled>💬</button>
-        <button class="sb-item" title="용어집(준비중)" disabled>📚</button>
-        <button class="sb-item" title="프로필(준비중)" disabled>👤</button>
+        <button class="sb-item" @click="go('home')">
+          <span class="ico">🏠</span><span class="txt">홈</span>
+        </button>
+
+        <button class="sb-item" @click="go('drive')">
+          <span class="ico">🗂️</span><span class="txt">드라이브</span>
+        </button>
+
+        <button class="sb-item active">
+          <span class="ico">⬆️</span><span class="txt">업로드</span>
+        </button>
+
+        <button class="sb-item" @click="go('qa')">
+          <span class="ico">💬</span><span class="txt">Q&A</span>
+        </button>
+        <button class="sb-item" @click="go('terms')">
+          <span class="ico">📘</span><span class="txt">용어집</span>
+        </button>
+        <div class="sb-sep"></div>
+
+        <button class="sb-item" @click="go('profile')">
+          <span class="ico">👤</span><span class="txt">프로필</span>
+        </button>
+
+        <button v-if="isAdmin" class="sb-item" @click="go('admin')">
+          <span class="ico">🛡️</span><span class="txt">관리자</span>
+        </button>
       </nav>
 
       <div class="sb-bottom">
-        <button class="sb-item" title="도움말(준비중)" disabled>❓</button>
-        <button class="sb-item" title="설정(준비중)" disabled>⚙️</button>
+        <button class="sb-mini" @click="toggleTheme" :title="theme === 'dark' ? 'Light' : 'Dark'">
+          {{ theme === "dark" ? "☀️" : "🌙" }}
+        </button>
+        <button class="sb-mini" @click="logout" title="Logout">↩️</button>
       </div>
     </aside>
 
@@ -123,10 +152,40 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from "vue";
+import { ref, computed, onMounted } from "vue";
 import { useRouter } from "vue-router";
 
 const router = useRouter();
+
+const sidebarQ = ref("");
+const theme = ref<"light" | "dark">("light");
+const role = ref<"ADMIN" | "USER" | "">("");
+const isAdmin = computed(() => role.value === "ADMIN");
+
+function applyTheme(next: "light" | "dark") {
+  theme.value = next;
+  document.documentElement.setAttribute("data-theme", next);
+  localStorage.setItem("theme", next);
+}
+function toggleTheme() {
+  applyTheme(theme.value === "dark" ? "light" : "dark");
+}
+
+onMounted(() => {
+  const savedTheme = (localStorage.getItem("theme") as "light" | "dark") || "light";
+  applyTheme(savedTheme);
+  role.value = (localStorage.getItem("role") as "ADMIN" | "USER") || "";
+});
+
+function logout() {
+  localStorage.removeItem("access_token");
+  localStorage.removeItem("role");
+  localStorage.removeItem("user_name");
+  localStorage.removeItem("user_email");
+  localStorage.removeItem("remember_me");
+  localStorage.removeItem("last_login_at");
+  router.push({ name: "login" }).catch(() => {});
+}
 
 const fileInput = ref<HTMLInputElement | null>(null);
 const selectedFile = ref<File | null>(null);
@@ -230,73 +289,149 @@ async function startUpload() {
 </script>
 
 <style scoped>
+:global(:root) {
+  --b1: #1d4ed8;
+  --b2: #0ea5e9;
+  --ring: rgba(29, 78, 216, 0.18);
+}
+
 .app {
   min-height: 100vh;
-  background: #f4f6fb;
-  color: #111827;
-  font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, "Noto Sans KR", Arial;
   display: grid;
-  grid-template-columns: 72px 1fr;
+  grid-template-columns: 280px 1fr;
+  font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, "Noto Sans KR", Arial;
+  color: #111827;
+  background: #f4f6fb;
 }
 
 /* Sidebar */
 .sidebar {
-  background: #2f3642;
-  color: #fff;
+  background: rgba(255, 255, 255, 0.65);
+  border-right: 1px solid #e5e7eb;
+  backdrop-filter: blur(10px);
+  padding: 16px 14px;
   display: flex;
   flex-direction: column;
-  align-items: center;
-  padding: 12px 0;
-  gap: 10px;
+  gap: 12px;
 }
-.sb-top { padding: 6px 0 10px; }
+:global(:root[data-theme="dark"]) .sidebar {
+  background: rgba(12, 23, 43, 0.72);
+}
+
+.sb-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 6px;
+}
 .sb-logo {
-  width: 44px;
-  height: 44px;
-  border-radius: 14px;
+  width: 36px;
+  height: 36px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.7);
+  border: 1px solid #e5e7eb;
   display: grid;
   place-items: center;
-  background: rgba(255, 255, 255, 0.14);
+  overflow: hidden;
+}
+:global(:root[data-theme="dark"]) .sb-logo {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(148, 163, 184, 0.2);
+}
+.sb-logo img {
+  width: 22px;
+  height: 22px;
+  object-fit: contain;
+}
+.sb-name {
+  font-weight: 1000;
+  letter-spacing: -0.2px;
+}
+
+.sb-search {
+  padding: 0 6px 6px;
+}
+.sb-input {
+  width: 100%;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 10px 12px;
+  background: rgba(255, 255, 255, 0.7);
+  outline: none;
   font-weight: 900;
 }
+:global(:root[data-theme="dark"]) .sb-input {
+  background: rgba(255, 255, 255, 0.06);
+  color: #e5e7eb;
+  border-color: rgba(148, 163, 184, 0.2);
+}
+.sb-input:focus {
+  box-shadow: 0 0 0 3px var(--ring);
+}
+
 .sb-nav {
   display: grid;
-  gap: 8px;
-  width: 100%;
-  justify-items: center;
-  padding-top: 6px;
-}
-.sb-bottom {
-  margin-top: auto;
-  display: grid;
-  gap: 8px;
-  width: 100%;
-  justify-items: center;
-  padding-bottom: 6px;
+  gap: 6px;
+  padding: 0 6px;
 }
 .sb-item {
-  width: 44px;
-  height: 44px;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
   border-radius: 14px;
-  border: none;
+  border: 1px solid transparent;
   background: transparent;
-  color: #fff;
   cursor: pointer;
-  display: grid;
-  place-items: center;
-  font-size: 18px;
-  opacity: 0.9;
+  color: inherit;
+  font-weight: 950;
+  text-align: left;
 }
 .sb-item:hover {
-  background: rgba(255, 255, 255, 0.12);
-}
-.sb-item:disabled {
-  opacity: 0.4;
-  cursor: not-allowed;
+  background: rgba(29, 78, 216, 0.08);
+  border-color: rgba(29, 78, 216, 0.14);
 }
 .sb-item.active {
-  background: rgba(255, 255, 255, 0.18);
-  outline: 1px solid rgba(255, 255, 255, 0.16);
+  background: rgba(29, 78, 216, 0.12);
+  border-color: rgba(29, 78, 216, 0.18);
+}
+.ico {
+  width: 18px;
+  display: grid;
+  place-items: center;
+}
+.txt {
+  font-size: 13px;
+}
+.sb-sep {
+  height: 1px;
+  background: #e5e7eb;
+  margin: 6px 0;
+}
+:global(:root[data-theme="dark"]) .sb-sep {
+  background: rgba(148, 163, 184, 0.2);
+}
+
+.sb-bottom {
+  margin-top: auto;
+  display: flex;
+  gap: 8px;
+  padding: 8px 6px 0;
+}
+.sb-mini {
+  width: 40px;
+  height: 40px;
+  border-radius: 14px;
+  border: 1px solid #e5e7eb;
+  background: rgba(255, 255, 255, 0.7);
+  cursor: pointer;
+  font-size: 16px;
+}
+:global(:root[data-theme="dark"]) .sb-mini {
+  background: rgba(255, 255, 255, 0.06);
+  color: #e5e7eb;
+  border-color: rgba(148, 163, 184, 0.2);
 }
 
 /* Main */
@@ -343,11 +478,13 @@ async function startUpload() {
 
 /* Content */
 .content {
-  max-width: 980px;
-  margin: 0 auto;
-  padding: 22px 18px 44px;
+  max-width: none;
+  width: 100%;
+  margin: 0;
+  padding: 16px 12px 32px;
   display: grid;
-  gap: 14px;
+  gap: 16px;
+  justify-items: stretch;
 }
 
 .card {
@@ -364,9 +501,16 @@ async function startUpload() {
 .dropzone {
   border: 2px dashed #d1d5db;
   border-radius: 18px;
-  padding: 36px 18px;
+  padding: 16px;
   text-align: center;
   background: #fafbff;
+  margin-bottom: 24px;
+  min-height: 360px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
 }
 .dropzone.dragging {
   border-color: #2563eb;
@@ -506,3 +650,6 @@ async function startUpload() {
   }
 }
 </style>
+
+
+

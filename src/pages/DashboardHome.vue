@@ -1,174 +1,224 @@
-<template>
-  <div class="layout">
-    <!-- Top Bar -->
-    <header class="topbar">
-      <div class="brand">
-        <div class="logo">
-          <img src="/logo.png" alt="로고" />
+﻿<template>
+  <div class="app">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div class="sb-brand">
+        <div class="sb-logo">
+          <img src="/logo.png" alt="DoQ" />
         </div>
-        <div class="brand-text">
-          <div class="title">문서 이해 보조 시스템</div>
-          <div class="subtitle">Dashboard</div>
-        </div>
+        <div class="sb-name">DoQ</div>
       </div>
 
-      <div class="top-actions">
-        <button class="btn btn-ghost" @click="goDrive">내 드라이브</button>
-        <button class="btn btn-primary" @click="goUpload">+ 새 문서 업로드</button>
+      <nav class="sb-nav">
+        <button class="sb-item active">
+          <span class="ico">🏠</span><span class="txt">홈</span>
+        </button>
+
+        <button class="sb-item" @click="goDrive">
+          <span class="ico">🗂️</span><span class="txt">드라이브</span>
+        </button>
+
+        <button class="sb-item" @click="goUpload">
+          <span class="ico">⬆️</span><span class="txt">업로드</span>
+        </button>
+
+        <button class="sb-item" @click="goQa">
+          <span class="ico">💬</span><span class="txt">Q&A</span>
+        </button>
+
+        <!-- ✅ 용어집 추가 -->
+        <button class="sb-item" @click="goTerms">
+          <span class="ico">📚</span><span class="txt">용어집</span>
+        </button>
+
+        <div class="sb-sep"></div>
+
+        <button class="sb-item" @click="goProfile">
+          <span class="ico">👤</span><span class="txt">프로필</span>
+        </button>
+
+        <button v-if="isAdmin" class="sb-item" @click="goAdmin">
+          <span class="ico">🛡️</span><span class="txt">관리자</span>
+        </button>
+      </nav>
+
+      <div class="sb-bottom">
+        <button class="sb-mini" @click="toggleTheme">
+          {{ theme === "dark" ? "☀️" : "🌙" }}
+        </button>
+        <button class="sb-mini" @click="logout">↩️</button>
       </div>
-    </header>
+    </aside>
 
     <!-- Main -->
-    <main class="container">
-      <!-- Hero -->
-      <section class="hero">
-        <div class="hero-left">
-          <h1>
-            전문 문서를 <span class="accent">원문 그대로</span> 두고,<br />
-            이해를 돕는 설명 레이어를 제공합니다.
-          </h1>
-          <p>
-            PDF/이미지 문서를 업로드하면 텍스트 추출 → 용어 설명 → 문장/문단별 이해 보조 결과를
-            생성합니다.
-          </p>
-          <div class="hero-actions">
-            <button class="btn btn-primary" @click="goUpload">문서 업로드 시작</button>
-
-          </div>
+    <div class="main">
+      <!-- Top Bar -->
+      <header class="topbar">
+        <div class="tb-left">
+          <div class="tb-title-strong">DoQ · 문서 이해 보조 시스템 </div>
         </div>
 
-        <div class="hero-right">
-          <div class="hero-card">
-            <div class="hero-card-title">오늘의 요약</div>
-            <div class="stat-grid">
-              <div class="stat">
-                <div class="stat-label">총 문서</div>
-                <div class="stat-value">{{ stats.totalDocs }}</div>
-              </div>
-              <div class="stat">
-                <div class="stat-label">분석 완료</div>
-                <div class="stat-value">{{ stats.done }}</div>
-              </div>
-              <div class="stat">
-                <div class="stat-label">분석 중</div>
-                <div class="stat-value">{{ stats.processing }}</div>
-              </div>
-              <div class="stat">
-                <div class="stat-label">이번 주 Q&A</div>
-                <div class="stat-value">{{ stats.weekQa }}</div>
+        <!-- ✅ 중앙 Search -->
+        <div class="tb-center">
+          <input
+            class="tb-search"
+            placeholder="문서 검색"
+            v-model="sidebarQ"
+          />
+        </div>
+
+        <div class="tb-right">
+          <button class="btn btn-ghost" @click="goDrive">내 드라이브</button>
+        </div>
+      </header>
+
+      <!-- Content -->
+      <main class="container">
+        <!-- Hero -->
+        <section class="hero">
+          <div class="hero-left">
+            <h1>
+              전문 문서를 <span class="accent">원문 그대로</span> 두고,<br />
+              이해를 돕는 설명 레이어를 제공합니다.
+            </h1>
+            <p>
+              PDF/이미지 문서를 업로드하면 텍스트 추출 → 용어 설명 →
+              문장·문단별 이해 보조 결과를 생성합니다.
+            </p>
+            <div class="hero-actions">
+              <button class="btn btn-primary btn-lg" @click="goUpload">
+                문서 업로드 시작
+              </button>
+            </div>
+          </div>
+
+          <div class="hero-right">
+            <div class="hero-card">
+              <div class="hero-card-title">오늘의 요약</div>
+              <div class="stat-grid">
+                <div class="stat">
+                  <div class="stat-label">총 문서</div>
+                  <div class="stat-value">{{ stats.totalDocs }}</div>
+                </div>
+                <div class="stat">
+                  <div class="stat-label">분석 완료</div>
+                  <div class="stat-value">{{ stats.done }}</div>
+                </div>
+                <div class="stat">
+                  <div class="stat-label">분석 중</div>
+                  <div class="stat-value">{{ stats.processing }}</div>
+                </div>
+                <div class="stat">
+                  <div class="stat-label">이번 주 Q&A</div>
+                  <div class="stat-value">{{ stats.weekQa }}</div>
+                </div>
               </div>
             </div>
           </div>
-        </div>
-      </section>
+        </section>
 
-      <!-- Cards -->
-      <section class="grid">
         <!-- Recent Docs -->
-        <article class="card">
-          <div class="card-head">
-            <h2>최근 업로드 문서</h2>
-            <button class="link" @click="goDrive">전체 보기 →</button>
-          </div>
+        <section class="grid">
+          <article class="card card-large">
+            <div class="card-head">
+              <h2>최근 업로드 문서</h2>
+              <button class="link" @click="goDrive">전체 보기 →</button>
+            </div>
 
-          <div v-if="recentDocs.length === 0" class="empty">
-            아직 업로드된 문서가 없습니다. <button class="inline" @click="goUpload">업로드</button>
-            해보세요.
-          </div>
+            <div v-if="recentDocs.length === 0" class="empty">
+              아직 업로드된 문서가 없습니다.
+              <button class="inline" @click="goUpload">업로드</button>
+              해보세요.
+            </div>
 
-          <ul v-else class="list">
-            <li v-for="doc in recentDocs" :key="doc.id" class="list-item">
-              <div class="doc-left">
-                <div class="doc-title">{{ doc.title }}</div>
-                <div class="doc-meta">
-                  <span class="chip">{{ doc.type }}</span>
-                  <span class="muted">·</span>
-                  <span class="muted">{{ formatDate(doc.createdAt) }}</span>
+            <ul v-else class="list">
+              <li v-for="doc in recentDocs" :key="doc.id" class="list-item">
+                <div>
+                  <div class="doc-title">{{ doc.title }}</div>
+                  <div class="doc-meta">
+                    <span class="chip">{{ doc.type }}</span>
+                    <span class="muted">{{ formatDate(doc.createdAt) }}</span>
+                  </div>
                 </div>
-              </div>
 
-              <div class="doc-right">
-                <span :class="['badge', badgeClass(doc.status)]">{{ statusLabel(doc.status) }}</span>
-                <button
-                  class="btn btn-sm"
-                  :disabled="doc.status !== 'done'"
-                  @click="openDocument(doc.id)"
-                  title="분석 완료 문서만 열 수 있어요"
-                >
-                  열기
-                </button>
+                <div class="doc-right">
+                  <span :class="['badge', badgeClass(doc.status)]">
+                    {{ statusLabel(doc.status) }}
+                  </span>
+                  <button
+                    class="btn btn-sm"
+                    :disabled="doc.status !== 'done'"
+                    @click="openDocument(doc.id)"
+                  >
+                    열기
+                  </button>
+                </div>
+              </li>
+            </ul>
+          </article>
+        </section>
+
+        <!-- Recent Activity -->
+        <section class="card">
+          <div class="card-head">
+            <h2>최근 활동</h2>
+          </div>
+
+          <ul v-if="activities.length" class="activity">
+            <li v-for="a in activities" :key="a.id" class="activity-item">
+              <span class="dot" />
+              <div>
+                <div class="activity-title">{{ a.title }}</div>
+                <div class="muted">{{ formatDateTime(a.at) }}</div>
               </div>
             </li>
           </ul>
-        </article>
 
-        <!-- Quick Actions -->
-        <article class="card">
-          <div class="card-head">
-            <h2>빠른 작업</h2>
-          </div>
-
-          <div class="quick">
-            <button class="quick-item" @click="goUpload">
-              <div class="quick-icon">⬆️</div>
-              <div>
-                <div class="quick-title">문서 업로드</div>
-                <div class="quick-desc">PDF/이미지 업로드 후 분석 시작</div>
-              </div>
-            </button>
-
-            <button class="quick-item" @click="goQa">
-              <div class="quick-icon">💬</div>
-              <div>
-                <div class="quick-title">문서 Q&A</div>
-                <div class="quick-desc">문서 근거 기반으로 질문하기</div>
-              </div>
-            </button>
-
-            <button class="quick-item" @click="goTerms">
-              <div class="quick-icon">📚</div>
-              <div>
-                <div class="quick-title">용어집</div>
-                <div class="quick-desc">추출된 전문 용어/정의 모아보기</div>
-              </div>
-            </button>
-
-            <button class="quick-item" @click="goProfile">
-              <div class="quick-icon">👤</div>
-              <div>
-                <div class="quick-title">프로필/설정</div>
-                <div class="quick-desc">설명 깊이, 강조 표시 옵션</div>
-              </div>
-            </button>
-          </div>
-        </article>
-      </section>
-
-      <!-- Recent Activity -->
-      <section class="card">
-        <div class="card-head">
-          <h2>최근 활동</h2>
-        </div>
-
-        <ul v-if="activities.length" class="activity">
-          <li v-for="a in activities" :key="a.id" class="activity-item">
-            <span class="dot" />
-            <div class="activity-main">
-              <div class="activity-title">{{ a.title }}</div>
-              <div class="activity-sub muted">{{ formatDateTime(a.at) }}</div>
-            </div>
-          </li>
-        </ul>
-
-        <div v-else class="empty">최근 활동이 없습니다.</div>
-      </section>
-    </main>
+          <div v-else class="empty">최근 활동이 없습니다.</div>
+        </section>
+      </main>
+    </div>
   </div>
 </template>
 
+
 <script setup lang="ts">
-import { computed, ref } from "vue";
+import { computed, ref, onMounted } from "vue";
 import { useRouter } from "vue-router";
+
+const sidebarQ = ref("");
+const theme = ref<"light" | "dark">("light");
+const role = ref<"ADMIN" | "USER" | "">("");
+const isAdmin = computed(() => role.value === "ADMIN");
+
+function applyTheme(next: "light" | "dark") {
+  theme.value = next;
+  document.documentElement.setAttribute("data-theme", next);
+  localStorage.setItem("theme", next);
+}
+function toggleTheme() {
+  applyTheme(theme.value === "dark" ? "light" : "dark");
+}
+
+onMounted(() => {
+  const savedTheme = (localStorage.getItem("theme") as "light" | "dark") || "light";
+  applyTheme(savedTheme);
+  role.value = (localStorage.getItem("role") as "ADMIN" | "USER") || "";
+});
+
+function logout() {
+  localStorage.removeItem("access_token");
+  localStorage.removeItem("role");
+  localStorage.removeItem("user_name");
+  localStorage.removeItem("user_email");
+  localStorage.removeItem("remember_me");
+  localStorage.removeItem("last_login_at");
+  router.push({ name: "login" }).catch(() => {});
+}
+
+function goAdmin() {
+  router.push({ name: "admin" }).catch(() => {});
+}
 
 type DocStatus = "processing" | "done" | "failed";
 
@@ -303,11 +353,6 @@ function goProfile() {
     console.log("프로필 페이지 준비 중...");
   });
 }
-function goGuide() {
-  router.push({ name: "guide" }).catch(() => {
-    console.log("가이드 페이지 준비 중...");
-  });
-}
 function goTerms() {
   router.push({ name: "terms" }).catch(() => {
     console.log("용어집 페이지 준비 중...");
@@ -323,61 +368,200 @@ function openDocument(docId: string) {
 </script>
 
 <style scoped>
-:root {
-  color-scheme: light;
+:global(:root) {
+  --b1: #1d4ed8;
+  --b2: #0ea5e9;
+  --ring: rgba(29, 78, 216, 0.18);
 }
 
-.layout {
+.app {
   min-height: 100vh;
-  background: #f6f7fb;
-  color: #111827;
+  display: grid;
+  grid-template-columns: 280px 1fr;
   font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, "Noto Sans KR", Arial;
+  color: #111827;
+  background: #f4f6fb;
+}
+
+/* Sidebar */
+.sidebar {
+  background: rgba(255, 255, 255, 0.65);
+  border-right: 1px solid #e5e7eb;
+  backdrop-filter: blur(10px);
+  padding: 16px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+:global(:root[data-theme="dark"]) .sidebar {
+  background: rgba(12, 23, 43, 0.72);
+}
+
+.sb-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 6px;
+}
+.sb-logo {
+  width: 36px;
+  height: 36px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.7);
+  border: 1px solid #e5e7eb;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+}
+:global(:root[data-theme="dark"]) .sb-logo {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(148, 163, 184, 0.2);
+}
+.sb-logo img {
+  width: 22px;
+  height: 22px;
+  object-fit: contain;
+}
+.sb-name {
+  font-weight: 1000;
+  letter-spacing: -0.2px;
+}
+
+.sb-search {
+  padding: 0 6px 6px;
+}
+.sb-input {
+  width: 100%;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 10px 12px;
+  background: rgba(255, 255, 255, 0.7);
+  outline: none;
+  font-weight: 900;
+}
+:global(:root[data-theme="dark"]) .sb-input {
+  background: rgba(255, 255, 255, 0.06);
+  color: #e5e7eb;
+  border-color: rgba(148, 163, 184, 0.2);
+}
+.sb-input:focus {
+  box-shadow: 0 0 0 3px var(--ring);
+}
+
+.sb-nav {
+  display: grid;
+  gap: 6px;
+  padding: 0 6px;
+}
+.sb-item {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: 14px;
+  border: 1px solid transparent;
+  background: transparent;
+  cursor: pointer;
+  color: inherit;
+  font-weight: 950;
+  text-align: left;
+}
+.sb-item:hover {
+  background: rgba(29, 78, 216, 0.08);
+  border-color: rgba(29, 78, 216, 0.14);
+}
+.sb-item.active {
+  background: rgba(29, 78, 216, 0.12);
+  border-color: rgba(29, 78, 216, 0.18);
+}
+.ico {
+  width: 18px;
+  display: grid;
+  place-items: center;
+}
+.txt {
+  font-size: 13px;
+}
+.sb-sep {
+  height: 1px;
+  background: #e5e7eb;
+  margin: 6px 0;
+}
+:global(:root[data-theme="dark"]) .sb-sep {
+  background: rgba(148, 163, 184, 0.2);
+}
+
+.sb-bottom {
+  margin-top: auto;
+  display: flex;
+  gap: 8px;
+  padding: 8px 6px 0;
+}
+.sb-mini {
+  width: 40px;
+  height: 40px;
+  border-radius: 14px;
+  border: 1px solid #e5e7eb;
+  background: rgba(255, 255, 255, 0.7);
+  cursor: pointer;
+  font-size: 16px;
+}
+:global(:root[data-theme="dark"]) .sb-mini {
+  background: rgba(255, 255, 255, 0.06);
+  color: #e5e7eb;
+  border-color: rgba(148, 163, 184, 0.2);
+}
+
+/* Main */
+.main {
+  display: grid;
+  grid-template-rows: 76px 1fr;
 }
 
 .topbar {
-  height: 72px;
+  background: #fff;
+  border-bottom: 1px solid #e5e7eb;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 20px;
-  background: #ffffff;
-  border-bottom: 1px solid #e5e7eb;
-}
-
-.brand {
-  display: flex;
-  align-items: center;
+  padding: 0 18px;
   gap: 12px;
 }
-.logo {
-  width: 40px;
-  height: 40px;
-  border-radius: 12px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  overflow: hidden;
-  background: #111827;
-}
-.logo img {
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
-}
-.brand-text .title {
-  font-weight: 800;
-  font-size: 14px;
-}
-.brand-text .subtitle {
-  font-size: 12px;
-  color: #6b7280;
-  margin-top: 2px;
+:global(:root[data-theme="dark"]) .topbar {
+  background: rgba(12, 23, 43, 0.72);
+  color: #e5e7eb;
+  border-bottom-color: rgba(148, 163, 184, 0.2);
 }
 
-.top-actions {
+.tb-left {
+  display: grid;
+  gap: 6px;
+}
+.tb-title {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+.tb-title-strong {
+  font-weight: 1100;
+  font-size: 14px;
+  letter-spacing: -0.2px;
+}
+.tb-sub {
+  color: #6b7280;
+  font-size: 12px;
+  font-weight: 700;
+}
+:global(:root[data-theme="dark"]) .tb-sub {
+  color: rgba(229, 231, 235, 0.75);
+}
+
+.tb-right {
   display: flex;
   gap: 10px;
   align-items: center;
+  flex-wrap: wrap;
 }
 
 .container {
@@ -413,6 +597,7 @@ function openDocument(docId: string) {
   margin: 10px 0 0;
   color: #4b5563;
   line-height: 1.6;
+  
 }
 .hero-actions {
   margin-top: 14px;
@@ -677,4 +862,45 @@ function openDocument(docId: string) {
     grid-template-columns: 1fr;
   }
 }
+
+.tb-center {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+}
+
+.tb-search {
+  width: 600px;
+  max-width: 90%;
+  padding: 10px 14px;
+  border-radius: 14px;
+  border: 1px solid #e5e7eb;
+  background: #f9fafb;
+  font-weight: 800;
+}
+
+.btn-lg {
+  padding: 10px 18px;
+  font-size: 15px;
+}
+
+.card-large {
+  min-height: 328px;
+}
+
+.grid {
+  grid-template-columns: 1fr;
+}
+
+.hero-left {
+  padding: 26px;
+}
+
+.hero-left h1 {
+  font-size: 24px;
+}
+
 </style>
+
+
+

@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <div class="wrap">
     <div class="shell">
       <!-- Left visual -->
@@ -7,7 +7,7 @@
           <img
             class="logo"
             src="/logo.png"
-            alt="DocAssist"
+            alt="DoQ"
             @click="goHome"
             role="button"
             tabindex="0"
@@ -283,3 +283,6 @@ async function submit() {
   .blob { display: none; }
 }
 </style>
+
+
+

@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <div class="page">
     <div class="shell">
       <!-- LEFT -->
@@ -8,7 +8,7 @@
           <img
             class="logo"
             src="/logo.png"
-            alt="DocAssist"
+            alt="DoQ"
             @click="goHome"
             role="button"
             tabindex="0"
@@ -352,3 +352,6 @@ async function onSubmit() {
   .right { padding: 28px 22px 22px; }
 }
 </style>
+
+
+

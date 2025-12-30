@@ -1,12 +1,12 @@
-<template>
+﻿<template>
   <div class="app">
     <!-- Sidebar -->
     <aside class="sidebar">
       <div class="sb-brand">
         <div class="sb-logo">
-          <img src="/logo.png" alt="DocAssist" />
+          <img src="/logo.png" alt="DoQ" />
         </div>
-        <div class="sb-name">DocAssist</div>
+        <div class="sb-name">DoQ</div>
       </div>
 
       <div class="sb-search">
@@ -15,29 +15,31 @@
 
       <nav class="sb-nav">
         <button class="sb-item" @click="go('home')">
-          <span class="ico">🏠</span><span class="txt">Home</span>
+          <span class="ico">🏠</span><span class="txt">홈</span>
         </button>
 
         <button class="sb-item" @click="go('drive')">
-          <span class="ico">🗂️</span><span class="txt">Drive</span>
+          <span class="ico">🗂️</span><span class="txt">드라이브</span>
         </button>
 
         <button class="sb-item" @click="go('upload')">
-          <span class="ico">⬆️</span><span class="txt">Upload</span>
+          <span class="ico">⬆️</span><span class="txt">업로드</span>
         </button>
 
         <button class="sb-item" @click="go('qa')">
           <span class="ico">💬</span><span class="txt">Q&A</span>
         </button>
-
+        <button class="sb-item" @click="go('terms')">
+          <span class="ico">📘</span><span class="txt">용어집</span>
+        </button>
         <div class="sb-sep"></div>
 
         <button class="sb-item active">
-          <span class="ico">👤</span><span class="txt">Profile</span>
+          <span class="ico">👤</span><span class="txt">프로필</span>
         </button>
 
         <button v-if="isAdmin" class="sb-item" @click="go('admin')">
-          <span class="ico">🛡️</span><span class="txt">Admin</span>
+          <span class="ico">🛡️</span><span class="txt">관리자</span>
         </button>
       </nav>
 
@@ -63,7 +65,7 @@
             <div class="crumb">
               <span class="pill">Settings</span>
               <span class="dot">•</span>
-              <span class="muted">Profile</span>
+              <span class="muted">프로필</span>
             </div>
             <h1 class="title">프로필 / 설정</h1>
             <p class="sub muted">문서 이해 보조 옵션과 화면 표시를 개인화합니다.</p>
@@ -976,3 +978,8 @@ function formatDateTime(iso: string) {
   }
 }
 </style>
+
+
+
+
+

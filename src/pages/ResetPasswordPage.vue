@@ -1,10 +1,10 @@
-<template>
+﻿<template>
     <div class="page">
       <div class="shell">
         <!-- LEFT -->
         <section class="left">
           <div class="left-top">
-            <img class="logo" src="/logo.png" alt="DocAssist" />
+            <img class="logo" src="/logo.png" alt="DoQ" />
           </div>
   
           <div class="left-center">
@@ -13,7 +13,7 @@
           </div>
   
           <div class="left-bottom">
-            <div class="mini">© {{ new Date().getFullYear() }} DocAssist</div>
+            <div class="mini">© {{ new Date().getFullYear() }} DoQ</div>
           </div>
         </section>
   
@@ -331,3 +331,5 @@
   }
   </style>
   
+
+
