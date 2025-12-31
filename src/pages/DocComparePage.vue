@@ -1,7 +1,8 @@
 ﻿<template>
     <div class="app">
+      <div class="overlay" v-if="sidebarOpen" @click="sidebarOpen = false" />
       <!-- Sidebar -->
-      <aside class="sidebar">
+      <aside class="sidebar" :class="{ open: sidebarOpen }">
         <div class="sb-brand">
           <div class="sb-logo">
             <img src="/logo.png" alt="DoQ" />
@@ -56,6 +57,7 @@
         <header class="topbar">
           <div class="tb-left">
             <div class="tb-title">
+              <button class="hamburger" @click="sidebarOpen = true" aria-label="Open menu">☰</button>
               <span class="tb-title-strong">문서 비교 · 이해</span>
               <span class="tb-sub">· ID: {{ docId }}</span>
             </div>
@@ -321,6 +323,7 @@
   const route = useRoute();
   const docId = computed(() => String(route.params.id ?? "unknown"));
   const sidebarQ = ref("");
+  const sidebarOpen = ref(false);
 
   const theme = ref<"light" | "dark">("light");
   const role = ref<"ADMIN" | "USER" | "">("");
@@ -342,6 +345,7 @@
   });
 
   function logout() {
+    sidebarOpen.value = false;
     localStorage.removeItem("access_token");
     localStorage.removeItem("role");
     localStorage.removeItem("user_name");
@@ -412,6 +416,7 @@
   ]);
   
   function go(name: string) {
+    sidebarOpen.value = false;
     router.push({ name }).catch(() => {});
   }
   
@@ -600,6 +605,13 @@
     font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, "Noto Sans KR", Arial;
     color: var(--ink);
     background: var(--bg);
+  }
+  /* ? Mobile overlay (default hidden) */
+  .overlay {
+    display: none;
+  }
+  .hamburger {
+    display: none;
   }
 /* Sidebar */
   .sidebar {
@@ -1070,6 +1082,41 @@
   .tt-hint { font-size: 11px; opacity: 0.75; margin-top: 8px; }
   
   /* Responsive */
+  @media (max-width: 820px) {
+    .app {
+      grid-template-columns: 1fr;
+    }
+    .overlay {
+      display: block;
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.4);
+      z-index: 900;
+    }
+    .sidebar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      height: 100vh;
+      width: 260px;
+      transform: translateX(-100%);
+      transition: transform 0.25s ease;
+      z-index: 1000;
+      background: #fff;
+    }
+    .sidebar.open {
+      transform: translateX(0);
+    }
+    .hamburger {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      background: transparent;
+      border: none;
+      cursor: pointer;
+    }
+  }
   @media (max-width: 980px) {
     .strip { grid-template-columns: 1fr; }
     .compare { grid-template-columns: 1fr; }

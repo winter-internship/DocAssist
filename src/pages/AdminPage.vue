@@ -1,7 +1,8 @@
 ﻿<template>
   <div class="app">
+    <div class="overlay" v-if="sidebarOpen" @click="sidebarOpen = false" />
     <!-- Sidebar -->
-    <aside class="sidebar">
+    <aside class="sidebar" :class="{ open: sidebarOpen }">
       <div class="sb-brand">
         <div class="sb-logo">
           <img src="/logo.png" alt="DoQ" />
@@ -17,25 +18,25 @@
           <span class="ico">🏠</span><span class="txt">홈</span>
         </button>
         <div class="sb-sep"></div>
-        <button class="sb-item" :class="{ active: tab === 'dashboard' }" @click="tab = 'dashboard'">
+        <button class="sb-item" :class="{ active: tab === 'dashboard' }" @click="setTab('dashboard')">
           <span class="ico">📊</span><span class="txt">대시보드</span>
         </button>
-        <button class="sb-item" :class="{ active: tab === 'users' }" @click="tab = 'users'">
+        <button class="sb-item" :class="{ active: tab === 'users' }" @click="setTab('users')">
           <span class="ico">👥</span><span class="txt">사용자</span>
         </button>
-        <button class="sb-item" :class="{ active: tab === 'docs' }" @click="tab = 'docs'">
+        <button class="sb-item" :class="{ active: tab === 'docs' }" @click="setTab('docs')">
           <span class="ico">📄</span><span class="txt">문서 관리</span>
         </button>
-        <button class="sb-item" :class="{ active: tab === 'tickets' }" @click="tab = 'tickets'">
+        <button class="sb-item" :class="{ active: tab === 'tickets' }" @click="setTab('tickets')">
           <span class="ico">🧾</span><span class="txt">문의/신고</span>
         </button>
-        <button class="sb-item" :class="{ active: tab === 'access' }" @click="tab = 'access'">
+        <button class="sb-item" :class="{ active: tab === 'access' }" @click="setTab('access')">
           <span class="ico">🛡️</span><span class="txt">권한/접근</span>
         </button>
-        <button class="sb-item" :class="{ active: tab === 'logs' }" @click="tab = 'logs'">
+        <button class="sb-item" :class="{ active: tab === 'logs' }" @click="setTab('logs')">
           <span class="ico">🧰</span><span class="txt">로그/통계</span>
         </button>
-        <button class="sb-item" :class="{ active: tab === 'settings' }" @click="tab = 'settings'">
+        <button class="sb-item" :class="{ active: tab === 'settings' }" @click="setTab('settings')">
           <span class="ico">⚙️</span><span class="txt">설정</span>
         </button>
       </nav>
@@ -48,6 +49,7 @@
       <header class="topbar">
         <div class="tb-left">
           <div class="tb-title">
+            <button class="hamburger" @click="sidebarOpen = true" aria-label="Open menu">☰</button>
             <span class="tb-title-strong">관리자</span>
             <span class="tb-sub">· 운영 현황 & 관리</span>
           </div>
@@ -482,6 +484,7 @@ import { useRouter } from "vue-router";
 const router = useRouter();
 
 const sidebarQ = ref("");
+const sidebarOpen = ref(false);
 
 type Tab = "dashboard" | "users" | "docs" | "tickets" | "access" | "logs" | "settings";
 const tab = ref<Tab>("dashboard");
@@ -495,7 +498,12 @@ function showToast(msg: string) {
 }
 
 function go(name: string) {
+  sidebarOpen.value = false;
   router.push({ name }).catch(() => {});
+}
+function setTab(next: Tab) {
+  tab.value = next;
+  sidebarOpen.value = false;
 }
 function openDoc(id: string) {
   router.push({ name: "documentView", params: { id } }).catch(() => {});
@@ -813,6 +821,13 @@ function restartMock() {
   font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, "Noto Sans KR", Arial;
   display: grid;
   grid-template-columns: 280px 1fr;
+}
+/* ? Mobile overlay (default hidden) */
+.overlay {
+  display: none;
+}
+.hamburger {
+  display: none;
 }
 /* Sidebar */
 .sidebar {
@@ -1235,6 +1250,41 @@ function restartMock() {
   .thead, .trow { grid-template-columns: 120px 1fr 160px 110px 120px 200px; }
   .thead.users, .trow.users { grid-template-columns: 110px 1fr 110px 110px 120px 200px; }
   .stats-compact { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 820px) {
+  .app {
+    grid-template-columns: 1fr;
+  }
+  .overlay {
+    display: block;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.4);
+    z-index: 900;
+  }
+  .sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100vh;
+    width: 260px;
+    transform: translateX(-100%);
+    transition: transform 0.25s ease;
+    z-index: 1000;
+    background: #fff;
+  }
+  .sidebar.open {
+    transform: translateX(0);
+  }
+  .hamburger {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+  }
 }
 @media (max-width: 720px) {
   .thead { display: none; }

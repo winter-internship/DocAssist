@@ -1,7 +1,8 @@
 ﻿<template>
   <div class="app">
+    <div class="overlay" v-if="sidebarOpen" @click="sidebarOpen = false" />
     <!-- Sidebar -->
-    <aside class="sidebar">
+    <aside class="sidebar" :class="{ open: sidebarOpen }">
       <div class="sb-brand">
         <div class="sb-logo">
           <img src="/logo.png" alt="DoQ" />
@@ -52,6 +53,7 @@
       <header class="topbar">
         <div class="tb-left">
           <div class="tb-title">
+            <button class="hamburger" @click="sidebarOpen = true" aria-label="Open menu">☰</button>
             <span class="tb-title-strong">프로필/설정</span>
             <span class="tb-sub">· 계정 정보와 환경 설정</span>
           </div>
@@ -262,6 +264,7 @@ import { useRouter } from "vue-router";
 
 const router = useRouter();
 const sidebarQ = ref("");
+const sidebarOpen = ref(false);
 
 const theme = ref<"light" | "dark">("light");
 
@@ -292,6 +295,7 @@ const toast = reactive({
 });
 
 function go(name: string) {
+  sidebarOpen.value = false;
   router.push({ name }).catch(() => {});
 }
 
@@ -335,6 +339,7 @@ function goResetPassword() {
 }
 
 function logout() {
+  sidebarOpen.value = false;
   localStorage.removeItem("access_token");
   localStorage.removeItem("role");
   localStorage.removeItem("user_name");
@@ -407,6 +412,13 @@ function formatDateTime(iso: string) {
   font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, "Noto Sans KR", Arial;
   color: var(--ink);
   background: var(--bg);
+}
+/* ? Mobile overlay (default hidden) */
+.overlay {
+  display: none;
+}
+.hamburger {
+  display: none;
 }
  /* Sidebar */
 .sidebar {
@@ -917,8 +929,35 @@ function formatDateTime(iso: string) {
   .app {
     grid-template-columns: 1fr;
   }
+  .overlay {
+    display: block;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.4);
+    z-index: 900;
+  }
   .sidebar {
-    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100vh;
+    width: 260px;
+    transform: translateX(-100%);
+    transition: transform 0.25s ease;
+    z-index: 1000;
+    background: #fff;
+  }
+  .sidebar.open {
+    transform: translateX(0);
+  }
+  .hamburger {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    background: transparent;
+    border: none;
+    cursor: pointer;
   }
   .grid {
     grid-template-columns: 1fr;

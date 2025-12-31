@@ -1,7 +1,8 @@
 ﻿<template>
     <div class="app">
+      <div class="overlay" v-if="sidebarOpen" @click="sidebarOpen = false" />
       <!-- Sidebar -->
-      <aside class="sidebar">
+      <aside class="sidebar" :class="{ open: sidebarOpen }">
         <div class="sb-brand">
           <div class="sb-logo">
             <img src="/logo.png" alt="DoQ" />
@@ -55,6 +56,7 @@
         <header class="topbar">
           <div class="tb-left">
             <div class="tb-title">
+              <button class="hamburger" @click="sidebarOpen = true" aria-label="Open menu">☰</button>
               <span class="tb-title-strong">문서 Q&A</span>
               <span class="tb-sub">· 근거 기반으로 답변을 확인하세요</span>
             </div>
@@ -254,6 +256,7 @@
   
   const router = useRouter();
   const sidebarQ = ref("");
+  const sidebarOpen = ref(false);
   const role = ref<"ADMIN" | "USER" | "">("");
   const isAdmin = computed(() => role.value === "ADMIN");
   
@@ -290,6 +293,7 @@
   }
   
   function go(name: string) {
+    sidebarOpen.value = false;
     router.push({ name }).catch(() => {});
   }
   
@@ -298,6 +302,7 @@
   }
 
   function logout() {
+    sidebarOpen.value = false;
     localStorage.removeItem("access_token");
     localStorage.removeItem("role");
     localStorage.removeItem("user_name");
@@ -512,10 +517,10 @@
   --ring: rgba(29, 78, 216, 0.18);
 }
 
-.app {  --ink: #111827;
-  --bg: #f4f6fb;
-  --line: #e5e7eb;
-  --card: #ffffff;
+  .app {  --ink: #111827;
+    --bg: #f4f6fb;
+    --line: #e5e7eb;
+    --card: #ffffff;
   --card-solid: #ffffff;
   --muted: #6b7280;
 
@@ -524,8 +529,15 @@
   grid-template-columns: 280px 1fr;
   font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, "Noto Sans KR", Arial;
   color: var(--ink);
-  background: var(--bg);
-}
+    background: var(--bg);
+  }
+  /* ? Mobile overlay (default hidden) */
+  .overlay {
+    display: none;
+  }
+  .hamburger {
+    display: none;
+  }
 /* Sidebar */
 .sidebar {
   background: rgba(255, 255, 255, 0.65);
@@ -1086,7 +1098,37 @@
   }
   @media (max-width: 820px) {
     .app {
-      grid-template-columns: 62px 1fr;
+      grid-template-columns: 1fr;
+    }
+    .overlay {
+      display: block;
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.4);
+      z-index: 900;
+    }
+    .sidebar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      height: 100vh;
+      width: 260px;
+      transform: translateX(-100%);
+      transition: transform 0.25s ease;
+      z-index: 1000;
+      background: #fff;
+    }
+    .sidebar.open {
+      transform: translateX(0);
+    }
+    .hamburger {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      background: transparent;
+      border: none;
+      cursor: pointer;
     }
     .grid {
       grid-template-columns: 1fr;

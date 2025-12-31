@@ -1,8 +1,9 @@
 ﻿드라이브
 <template>
   <div class="app">
+    <div class="overlay" v-if="sidebarOpen" @click="sidebarOpen = false" />
     <!-- Sidebar (ProfilePage 스타일) -->
-    <aside class="sidebar">
+    <aside class="sidebar" :class="{ open: sidebarOpen }">
       <div class="sb-brand">
         <div class="sb-logo">
           <img src="/logo.png" alt="DoQ" />
@@ -54,6 +55,7 @@
       <header class="topbar">
         <div class="tb-left">
           <div class="tb-title">
+            <button class="hamburger" @click="sidebarOpen = true" aria-label="Open menu">☰</button>
             <span class="tb-title-strong">내 드라이브</span>
             <span class="tb-sub">· 업로드한 문서를 관리하세요</span>
           </div>
@@ -284,6 +286,7 @@ interface DocItem {
 const router = useRouter();
 
 const sidebarQ = ref(""); // (디자인 통일용)
+const sidebarOpen = ref(false);
 const theme = ref<"light" | "dark">("light");
 const role = ref<"ADMIN" | "USER" | "">("");
 const isAdmin = computed(() => role.value === "ADMIN");
@@ -305,10 +308,12 @@ onMounted(() => {
 });
 
 function go(name: string) {
+  sidebarOpen.value = false;
   router.push({ name }).catch(() => {});
 }
 
 function logout() {
+  sidebarOpen.value = false;
   localStorage.removeItem("access_token");
   localStorage.removeItem("role");
   localStorage.removeItem("user_name");
@@ -514,6 +519,13 @@ function batchExport() {
   font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, "Noto Sans KR", Arial;
   color: var(--ink);
   background: var(--bg);
+}
+/* ? Mobile overlay (default hidden) */
+.overlay {
+  display: none;
+}
+.hamburger {
+  display: none;
 }
 /* ===== Sidebar (ProfilePage 그대로) ===== */
 .sidebar {
@@ -993,8 +1005,35 @@ function batchExport() {
   .app {
     grid-template-columns: 1fr;
   }
+  .overlay {
+    display: block;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.4);
+    z-index: 900;
+  }
   .sidebar {
-    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100vh;
+    width: 260px;
+    transform: translateX(-100%);
+    transition: transform 0.25s ease;
+    z-index: 1000;
+    background: #fff;
+  }
+  .sidebar.open {
+    transform: translateX(0);
+  }
+  .hamburger {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    background: transparent;
+    border: none;
+    cursor: pointer;
   }
 }
 @media (max-width: 720px) {
