@@ -6,50 +6,51 @@
           <div class="sb-logo">
             <img src="/logo.png" alt="DoQ" />
           </div>
-          <div class="sb-name">DoQ</div>
         </div>
+
+        <div class="sb-search">
+          <input class="sb-input" placeholder="Search" v-model="sidebarQ" />
+        </div>
+
 
         <nav class="sb-nav">
           <button class="sb-item" @click="go('home')">
-            <span class="ico">??</span><span class="txt">홈</span>
+            <span class="ico">🏠</span><span class="txt">홈</span>
           </button>
 
           <button class="sb-item" @click="go('drive')">
-            <span class="ico">???</span><span class="txt">드라이브</span>
+            <span class="ico">🗂️</span><span class="txt">드라이브</span>
           </button>
 
           <button class="sb-item" @click="go('upload')">
-            <span class="ico">??</span><span class="txt">업로드</span>
+            <span class="ico">📤</span><span class="txt">업로드</span>
           </button>
 
           <button class="sb-item" @click="go('qa')">
-            <span class="ico">??</span><span class="txt">Q&A</span>
+            <span class="ico">💬</span><span class="txt">Q&A</span>
           </button>
 
           <button class="sb-item" @click="go('terms')">
-            <span class="ico">??</span><span class="txt">용어집</span>
+            <span class="ico">📚</span><span class="txt">용어집</span>
           </button>
 
           <div class="sb-sep"></div>
 
           <button class="sb-item" @click="go('profile')">
-            <span class="ico">??</span><span class="txt">프로필</span>
+            <span class="ico">👤</span><span class="txt">프로필</span>
           </button>
 
           <button v-if="isAdmin" class="sb-item" @click="go('admin')">
-            <span class="ico">???</span><span class="txt">관리자</span>
+            <span class="ico">🛡️</span><span class="txt">관리자</span>
           </button>
         </nav>
 
         <div class="sb-bottom">
-          <button class="sb-mini" @click="toggleTheme" :title="theme === 'dark' ? 'Light' : 'Dark'">
-            {{ theme === "dark" ? "??" : "??" }}
-          </button>
-          <button class="sb-mini" @click="logout" title="Logout">??</button>
+          <button class="sb-logout" @click="logout">log out</button>
         </div>
       </aside>
 
-      <!-- Main -->
+    <!-- Main -->
       <div class="main">
         <!-- Topbar -->
         <header class="topbar">
@@ -199,7 +200,7 @@
             <div class="qa-head">
               <div>
                 <div class="qa-title">문서 기반 Q&A</div>
-                <div class="qa-sub muted">문서 내용 근거로 답변을 생성합니다(데모).</div>
+                <div class="qa-sub muted">문서 내용 근거로 답변을 생성합니다.</div>
               </div>
   
               <div class="qa-actions">
@@ -273,8 +274,8 @@
           </div>
         </div>
       </aside>
-  
-      <!-- Hover Tooltip -->
+
+    <!-- Hover Tooltip -->
       <div
         v-if="hoverTip.visible"
         class="tooltip"
@@ -319,6 +320,7 @@
   const router = useRouter();
   const route = useRoute();
   const docId = computed(() => String(route.params.id ?? "unknown"));
+  const sidebarQ = ref("");
 
   const theme = ref<"light" | "dark">("light");
   const role = ref<"ADMIN" | "USER" | "">("");
@@ -358,7 +360,7 @@
   const fontSize = ref(14);
   
   const docMeta = reactive({
-    title: "사내 안내문(데모)",
+    title: "사내 안내문",
     type: "PDF",
   });
   
@@ -558,7 +560,7 @@
     if (!el) return;
   
     await nextTick();
-    const paraHeight = 140; // 데모 추정값
+    const paraHeight = 140; //  추정값
     el.scrollTo({ top: Math.max(0, (paraNo - 1) * paraHeight), behavior: "smooth" });
   }
   
@@ -570,10 +572,10 @@
     fontSize.value = Math.max(12, fontSize.value - 1);
   }
   function downloadMock() {
-    alert("내보내기(데모): PDF/리포트로 내보내기 예정");
+    alert("내보내기: PDF/리포트로 내보내기 예정");
   }
   function reAnalyzeMock() {
-    alert("재분석(데모): FastAPI 분석 파이프라인 호출 예정");
+    alert("재분석: FastAPI 분석 파이프라인 호출 예정");
   }
   </script>
   
@@ -585,56 +587,69 @@
   }
 
   .app {
+    --ink: #111827;
+    --bg: #f4f6fb;
+    --line: #e5e7eb;
+    --card: #ffffff;
+    --card-solid: #ffffff;
+    --muted: #6b7280;
+
     min-height: 100vh;
     display: grid;
     grid-template-columns: 280px 1fr;
     font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, "Noto Sans KR", Arial;
-    color: #111827;
-    background: #f4f6fb;
+    color: var(--ink);
+    background: var(--bg);
   }
-
-  /* Sidebar */
+/* Sidebar */
   .sidebar {
     background: rgba(255, 255, 255, 0.65);
-    border-right: 1px solid #e5e7eb;
+    border-right: 1px solid var(--line);
     backdrop-filter: blur(10px);
     padding: 16px 14px;
     display: flex;
     flex-direction: column;
     gap: 12px;
   }
-  :global(:root[data-theme="dark"]) .sidebar {
-    background: rgba(12, 23, 43, 0.72);
-  }
-
   .sb-brand {
     display: flex;
     align-items: center;
-    gap: 10px;
-    padding: 8px 6px;
+    gap: 0;
+    padding: 10px 12px 12px;
   }
   .sb-logo {
-    width: 36px;
-    height: 36px;
-    border-radius: 12px;
-    background: rgba(255, 255, 255, 0.7);
-    border: 1px solid #e5e7eb;
+    width: 84px;
+    height: 84px;
+    border-radius: 22px;
     display: grid;
     place-items: center;
     overflow: hidden;
-  }
-  :global(:root[data-theme="dark"]) .sb-logo {
-    background: rgba(255, 255, 255, 0.06);
-    border-color: rgba(148, 163, 184, 0.2);
+  margin-left: 0;
   }
   .sb-logo img {
-    width: 22px;
-    height: 22px;
+    width: 100%;
+    height: 100%;
     object-fit: contain;
   }
   .sb-name {
     font-weight: 1000;
     letter-spacing: -0.2px;
+  }
+
+  .sb-search {
+    padding: 0 6px 6px;
+  }
+  .sb-input {
+    width: 100%;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 10px 12px;
+    background: rgba(255, 255, 255, 0.7);
+    outline: none;
+    font-weight: 900;
+  }
+  .sb-input:focus {
+    box-shadow: 0 0 0 3px var(--ring);
   }
 
   .sb-nav {
@@ -652,7 +667,7 @@
     border: 1px solid transparent;
     background: transparent;
     cursor: pointer;
-    color: inherit;
+    color: var(--ink);
     font-weight: 950;
     text-align: left;
   }
@@ -674,32 +689,35 @@
   }
   .sb-sep {
     height: 1px;
-    background: #e5e7eb;
+    background: var(--line);
     margin: 6px 0;
   }
-  :global(:root[data-theme="dark"]) .sb-sep {
-    background: rgba(148, 163, 184, 0.2);
-  }
-
   .sb-bottom {
     margin-top: auto;
     display: flex;
     gap: 8px;
     padding: 8px 6px 0;
   }
-  .sb-mini {
+
+  .sb-logout {
+    width: 100%;
+    border-radius: 14px;
+    border: 1px solid #2563eb;
+    background: #2563eb;
+    color: #fff;
+    cursor: pointer;
+    font-weight: 900;
+    padding: 10px 12px;
+    text-align: center;
+  }
+.sb-mini {
     width: 40px;
     height: 40px;
     border-radius: 14px;
-    border: 1px solid #e5e7eb;
+    border: 1px solid var(--line);
     background: rgba(255, 255, 255, 0.7);
     cursor: pointer;
     font-size: 16px;
-  }
-  :global(:root[data-theme="dark"]) .sb-mini {
-    background: rgba(255, 255, 255, 0.06);
-    color: #e5e7eb;
-    border-color: rgba(148, 163, 184, 0.2);
   }
 
   /* Main */
@@ -715,11 +733,6 @@
     padding: 0 18px;
     gap: 12px;
   }
-  :global(:root[data-theme="dark"]) .topbar {
-    background: rgba(12, 23, 43, 0.72);
-    color: #e5e7eb;
-    border-bottom-color: rgba(148, 163, 184, 0.2);
-  }
   .tb-left {
     display: grid;
     gap: 6px;
@@ -731,16 +744,13 @@
   }
   .tb-title-strong {
     font-weight: 1100;
-    font-size: 14px;
+    font-size: 16px;
     letter-spacing: -0.2px;
   }
   .tb-sub {
     color: #6b7280;
     font-size: 12px;
     font-weight: 700;
-  }
-  :global(:root[data-theme="dark"]) .tb-sub {
-    color: rgba(229, 231, 235, 0.75);
   }
   .tb-meta {
     display: flex;
@@ -775,12 +785,14 @@
 
   /* Content */
   .content {
-    max-width: 1220px;
-    margin: 0 auto;
-    padding: 16px 18px 44px;
-    display: grid;
-    gap: 14px;
-  }
+  max-width: 1480px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 16px 12px 32px;
+  display: grid;
+  gap: 16px;
+  justify-items: stretch;
+}
   
   /* Summary strip */
   .strip {
@@ -1065,4 +1077,16 @@
   }
   </style>
   
+
+
+
+
+
+
+
+
+
+
+
+
 

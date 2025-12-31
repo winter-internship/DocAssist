@@ -7,7 +7,6 @@
         <div class="sb-logo">
           <img src="/logo.png" alt="DoQ" />
         </div>
-        <div class="sb-name">DoQ</div>
       </div>
 
       <div class="sb-search">
@@ -24,14 +23,14 @@
         </button>
 
         <button class="sb-item" @click="go('upload')">
-          <span class="ico">⬆️</span><span class="txt">업로드</span>
+          <span class="ico">📤</span><span class="txt">업로드</span>
         </button>
 
         <button class="sb-item" @click="go('qa')">
           <span class="ico">💬</span><span class="txt">Q&A</span>
         </button>
         <button class="sb-item" @click="go('terms')">
-          <span class="ico">📘</span><span class="txt">용어집</span>
+          <span class="ico">📚</span><span class="txt">용어집</span>
         </button>
         <div class="sb-sep"></div>
 
@@ -45,10 +44,7 @@
       </nav>
 
       <div class="sb-bottom">
-        <button class="sb-mini" @click="toggleTheme" :title="theme === 'dark' ? 'Light' : 'Dark'">
-          {{ theme === "dark" ? "☀️" : "🌙" }}
-        </button>
-        <button class="sb-mini" @click="logout" title="Logout">↩️</button>
+        <button class="sb-logout" @click="logout">log out</button>
       </div>
     </aside>
 
@@ -124,7 +120,7 @@
                 :disabled="selectedIds.size === 0"
                 @click="deleteMock"
               >
-                삭제(데모)
+                삭제
               </button>
             </div>
           </div>
@@ -438,9 +434,9 @@ function openDoc(doc: DocItem) {
   router.push({ name: "documentView", params: { id: doc.id } }).catch(() => {});
 }
 
-// 데모 액션들
+//  액션들
 function refreshMock() {
-  alert("새로고침(데모): FastAPI에서 목록 다시 불러오게 연결할 예정");
+  alert("새로고침: FastAPI에서 목록 다시 불러오게 연결할 예정");
 }
 function renameMock(doc: DocItem) {
   const name = prompt("새 제목을 입력하세요", doc.title);
@@ -449,7 +445,7 @@ function renameMock(doc: DocItem) {
 }
 function deleteMock() {
   if (selectedIds.value.size === 0) return;
-  const ok = confirm(`선택한 ${selectedIds.value.size}개 문서를 삭제할까요? (데모)`);
+  const ok = confirm(`선택한 ${selectedIds.value.size}개 문서를 삭제할까요?`);
   if (!ok) return;
   const del = selectedIds.value;
   docs.value = docs.value.filter((d) => !del.has(d.id));
@@ -505,15 +501,20 @@ function batchExport() {
 }
 
 /* ✅ Layout: ProfilePage 사이드바 너비 유지 */
-.app {
+.app {  --ink: #111827;
+  --bg: #f4f6fb;
+  --line: #e5e7eb;
+  --card: #ffffff;
+  --card-solid: #ffffff;
+  --muted: #6b7280;
+
   min-height: 100vh;
   display: grid;
   grid-template-columns: 280px 1fr;
   font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, "Noto Sans KR", Arial;
-  color: #111827;
-  background: #f4f6fb;
+  color: var(--ink);
+  background: var(--bg);
 }
-
 /* ===== Sidebar (ProfilePage 그대로) ===== */
 .sidebar {
   background: rgba(255, 255, 255, 0.65);
@@ -524,33 +525,24 @@ function batchExport() {
   flex-direction: column;
   gap: 12px;
 }
-:global(:root[data-theme="dark"]) .sidebar {
-  background: rgba(12, 23, 43, 0.72);
-}
-
 .sb-brand {
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding: 8px 6px;
+  gap: 0;
+  padding: 10px 12px 12px;
 }
 .sb-logo {
-  width: 36px;
-  height: 36px;
-  border-radius: 12px;
-  background: rgba(255, 255, 255, 0.7);
-  border: 1px solid #e5e7eb;
+  width: 84px;
+  height: 84px;
+  border-radius: 22px;
   display: grid;
   place-items: center;
   overflow: hidden;
-}
-:global(:root[data-theme="dark"]) .sb-logo {
-  background: rgba(255, 255, 255, 0.06);
-  border-color: rgba(148, 163, 184, 0.2);
+  margin-left: 0;
 }
 .sb-logo img {
-  width: 22px;
-  height: 22px;
+  width: 100%;
+  height: 100%;
   object-fit: contain;
 }
 .sb-name {
@@ -569,11 +561,6 @@ function batchExport() {
   background: rgba(255, 255, 255, 0.7);
   outline: none;
   font-weight: 900;
-}
-:global(:root[data-theme="dark"]) .sb-input {
-  background: rgba(255, 255, 255, 0.06);
-  color: #e5e7eb;
-  border-color: rgba(148, 163, 184, 0.2);
 }
 .sb-input:focus {
   box-shadow: 0 0 0 3px var(--ring);
@@ -619,16 +606,24 @@ function batchExport() {
   background: #e5e7eb;
   margin: 6px 0;
 }
-:global(:root[data-theme="dark"]) .sb-sep {
-  background: rgba(148, 163, 184, 0.2);
-}
-
 .sb-bottom {
   margin-top: auto;
   display: flex;
   gap: 8px;
   padding: 8px 6px 0;
 }
+
+  .sb-logout {
+    width: 100%;
+    border-radius: 14px;
+    border: 1px solid #2563eb;
+    background: #2563eb;
+    color: #fff;
+    cursor: pointer;
+    font-weight: 900;
+    padding: 10px 12px;
+    text-align: center;
+  }
 .sb-mini {
   width: 40px;
   height: 40px;
@@ -637,11 +632,6 @@ function batchExport() {
   background: rgba(255, 255, 255, 0.7);
   cursor: pointer;
   font-size: 16px;
-}
-:global(:root[data-theme="dark"]) .sb-mini {
-  background: rgba(255, 255, 255, 0.06);
-  color: #e5e7eb;
-  border-color: rgba(148, 163, 184, 0.2);
 }
 
 /* ===== Main (원래 Drive 스타일 유지) ===== */
@@ -660,12 +650,6 @@ function batchExport() {
   padding: 0 18px;
   gap: 12px;
 }
-:global(:root[data-theme="dark"]) .topbar {
-  background: rgba(12, 23, 43, 0.72);
-  color: #e5e7eb;
-  border-bottom-color: rgba(148, 163, 184, 0.2);
-}
-
 .tb-left {
   display: grid;
   gap: 6px;
@@ -683,10 +667,6 @@ function batchExport() {
   color: #6b7280;
   font-size: 12px;
 }
-:global(:root[data-theme="dark"]) .tb-sub {
-  color: rgba(229, 231, 235, 0.75);
-}
-
 .tb-meta {
   display: flex;
   align-items: center;
@@ -700,19 +680,10 @@ function batchExport() {
   background: #f9fafb;
   font-weight: 800;
 }
-:global(:root[data-theme="dark"]) .pill {
-  background: rgba(255, 255, 255, 0.06);
-  border-color: rgba(148, 163, 184, 0.2);
-}
-
 .muted {
   color: #6b7280;
   font-size: 12px;
 }
-:global(:root[data-theme="dark"]) .muted {
-  color: rgba(229, 231, 235, 0.7);
-}
-
 .tb-right {
   display: flex;
   gap: 10px;
@@ -722,11 +693,13 @@ function batchExport() {
 
 /* Content */
 .content {
-  max-width: 1220px;
+  max-width: 1480px;
+  width: 100%;
   margin: 0 auto;
-  padding: 16px 18px 44px;
+  padding: 16px 12px 32px;
   display: grid;
-  gap: 14px;
+  gap: 16px;
+  justify-items: stretch;
 }
 
 /* Filters */
@@ -772,12 +745,6 @@ function batchExport() {
   border-radius: 18px;
   padding: 16px;
 }
-:global(:root[data-theme="dark"]) .card {
-  background: rgba(255, 255, 255, 0.06);
-  border-color: rgba(148, 163, 184, 0.2);
-  color: #e5e7eb;
-}
-
 .card-head {
   display: flex;
   align-items: center;
@@ -825,10 +792,6 @@ function batchExport() {
 .trow.selected {
   background: #f8fbff;
 }
-:global(:root[data-theme="dark"]) .trow.selected {
-  background: rgba(29, 78, 216, 0.12);
-}
-
 .td.title .doc-title {
   font-weight: 900;
 }
@@ -844,11 +807,6 @@ function batchExport() {
   background: #f9fafb;
   font-weight: 900;
 }
-:global(:root[data-theme="dark"]) .chip {
-  background: rgba(255, 255, 255, 0.06);
-  border-color: rgba(148, 163, 184, 0.2);
-}
-
 .badge {
   font-size: 12px;
   padding: 4px 10px;
@@ -903,17 +861,10 @@ function batchExport() {
   padding: 12px;
   background: #fff;
 }
-:global(:root[data-theme="dark"]) .stat {
-  background: rgba(255, 255, 255, 0.04);
-  border-color: rgba(148, 163, 184, 0.2);
-}
 .stat-label {
   color: #6b7280;
   font-size: 12px;
   font-weight: 900;
-}
-:global(:root[data-theme="dark"]) .stat-label {
-  color: rgba(229, 231, 235, 0.7);
 }
 .stat-value {
   font-weight: 900;
@@ -954,9 +905,6 @@ function batchExport() {
   padding-top: 12px;
   border-top: 1px solid #e5e7eb;
 }
-:global(:root[data-theme="dark"]) .batch-actions {
-  border-top-color: rgba(148, 163, 184, 0.2);
-}
 .full {
   width: 100%;
 }
@@ -967,11 +915,6 @@ function batchExport() {
   border-radius: 14px;
   color: #6b7280;
   background: #fafafa;
-}
-:global(:root[data-theme="dark"]) .empty {
-  background: rgba(255, 255, 255, 0.03);
-  border-color: rgba(148, 163, 184, 0.2);
-  color: rgba(229, 231, 235, 0.7);
 }
 .empty.small {
   padding: 12px;
@@ -999,11 +942,6 @@ function batchExport() {
 }
 .btn:hover {
   background: #f9fafb;
-}
-:global(:root[data-theme="dark"]) .btn {
-  background: rgba(255, 255, 255, 0.06);
-  border-color: rgba(148, 163, 184, 0.2);
-  color: #e5e7eb;
 }
 .btn-primary {
   background: #2563eb;
@@ -1033,10 +971,6 @@ function batchExport() {
 .link:hover {
   background: #eff6ff;
 }
-:global(:root[data-theme="dark"]) .link:hover {
-  background: rgba(29, 78, 216, 0.12);
-}
-
 /* Responsive */
 @media (max-width: 1180px) {
   .app {
@@ -1082,6 +1016,17 @@ function batchExport() {
   }
 }
 </style>
+
+
+
+
+
+
+
+
+
+
+
 
 
 

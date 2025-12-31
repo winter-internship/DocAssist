@@ -100,10 +100,10 @@ const ADMIN_EMAILS = [
 ];
 
 /**
- * ✅ 로그인 (데모용)
+ * ✅ 로그인 ()
  */
 function login() {
-  // 토큰 저장 (데모)
+  // 토큰 저장
   localStorage.setItem("access_token", "demo-token");
 
   // 사용자 정보 저장
@@ -301,6 +301,13 @@ function goHome() {
   .right { padding: 28px 22px 22px; }
 }
 </style>
+
+
+
+
+
+
+
 
 
 

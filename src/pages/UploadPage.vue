@@ -6,7 +6,6 @@
         <div class="sb-logo">
           <img src="/logo.png" alt="DoQ" />
         </div>
-        <div class="sb-name">DoQ</div>
       </div>
 
       <div class="sb-search">
@@ -23,14 +22,14 @@
         </button>
 
         <button class="sb-item active">
-          <span class="ico">⬆️</span><span class="txt">업로드</span>
+          <span class="ico">📤</span><span class="txt">업로드</span>
         </button>
 
         <button class="sb-item" @click="go('qa')">
           <span class="ico">💬</span><span class="txt">Q&A</span>
         </button>
         <button class="sb-item" @click="go('terms')">
-          <span class="ico">📘</span><span class="txt">용어집</span>
+          <span class="ico">📚</span><span class="txt">용어집</span>
         </button>
         <div class="sb-sep"></div>
 
@@ -44,10 +43,7 @@
       </nav>
 
       <div class="sb-bottom">
-        <button class="sb-mini" @click="toggleTheme" :title="theme === 'dark' ? 'Light' : 'Dark'">
-          {{ theme === "dark" ? "☀️" : "🌙" }}
-        </button>
-        <button class="sb-mini" @click="logout" title="Logout">↩️</button>
+        <button class="sb-logout" @click="logout">log out</button>
       </div>
     </aside>
 
@@ -61,12 +57,7 @@
             <span class="tb-sub">· PDF / JPG / PNG</span>
           </div>
         </div>
-
-        <div class="tb-right">
-          <button class="tb-icon" title="알림(준비중)" disabled>🔔</button>
-          <button class="tb-icon" title="계정(준비중)" disabled>👤</button>
-        </div>
-      </header>
+</header>
 
       <!-- Content -->
       <main class="content">
@@ -253,7 +244,7 @@ async function startUpload() {
   uploading.value = true;
   progress.value = 0;
 
-  // (데모) 가짜 진행률
+  // 가짜 진행률
   const timer = window.setInterval(() => {
     progress.value = Math.min(progress.value + Math.random() * 16, 96);
   }, 220);
@@ -270,7 +261,7 @@ async function startUpload() {
     // const data = await res.json(); // { document_id: "..." }
     // const docId = data.document_id;
 
-    // ✅ 지금은 데모: 1.8초 후 성공 처리
+    // ✅ 지금은  1.8초 후 성공 처리
     await new Promise((r) => setTimeout(r, 1800));
     progress.value = 100;
 
@@ -295,13 +286,19 @@ async function startUpload() {
   --ring: rgba(29, 78, 216, 0.18);
 }
 
-.app {
+.app {  --ink: #111827;
+  --bg: #f4f6fb;
+  --line: #e5e7eb;
+  --card: #ffffff;
+  --card-solid: #ffffff;
+  --muted: #6b7280;
+
   min-height: 100vh;
   display: grid;
   grid-template-columns: 280px 1fr;
   font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, "Noto Sans KR", Arial;
-  color: #111827;
-  background: #f4f6fb;
+  color: var(--ink);
+  background: var(--bg);
 }
 
 /* Sidebar */
@@ -314,33 +311,24 @@ async function startUpload() {
   flex-direction: column;
   gap: 12px;
 }
-:global(:root[data-theme="dark"]) .sidebar {
-  background: rgba(12, 23, 43, 0.72);
-}
-
 .sb-brand {
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding: 8px 6px;
+  gap: 0;
+  padding: 10px 12px 12px;
 }
 .sb-logo {
-  width: 36px;
-  height: 36px;
-  border-radius: 12px;
-  background: rgba(255, 255, 255, 0.7);
-  border: 1px solid #e5e7eb;
+  width: 84px;
+  height: 84px;
+  border-radius: 22px;
   display: grid;
   place-items: center;
   overflow: hidden;
-}
-:global(:root[data-theme="dark"]) .sb-logo {
-  background: rgba(255, 255, 255, 0.06);
-  border-color: rgba(148, 163, 184, 0.2);
+  margin-left: 0;
 }
 .sb-logo img {
-  width: 22px;
-  height: 22px;
+  width: 100%;
+  height: 100%;
   object-fit: contain;
 }
 .sb-name {
@@ -359,11 +347,6 @@ async function startUpload() {
   background: rgba(255, 255, 255, 0.7);
   outline: none;
   font-weight: 900;
-}
-:global(:root[data-theme="dark"]) .sb-input {
-  background: rgba(255, 255, 255, 0.06);
-  color: #e5e7eb;
-  border-color: rgba(148, 163, 184, 0.2);
 }
 .sb-input:focus {
   box-shadow: 0 0 0 3px var(--ring);
@@ -409,16 +392,24 @@ async function startUpload() {
   background: #e5e7eb;
   margin: 6px 0;
 }
-:global(:root[data-theme="dark"]) .sb-sep {
-  background: rgba(148, 163, 184, 0.2);
-}
-
 .sb-bottom {
   margin-top: auto;
   display: flex;
   gap: 8px;
   padding: 8px 6px 0;
 }
+
+  .sb-logout {
+    width: 100%;
+    border-radius: 14px;
+    border: 1px solid #2563eb;
+    background: #2563eb;
+    color: #fff;
+    cursor: pointer;
+    font-weight: 900;
+    padding: 10px 12px;
+    text-align: center;
+  }
 .sb-mini {
   width: 40px;
   height: 40px;
@@ -428,16 +419,11 @@ async function startUpload() {
   cursor: pointer;
   font-size: 16px;
 }
-:global(:root[data-theme="dark"]) .sb-mini {
-  background: rgba(255, 255, 255, 0.06);
-  color: #e5e7eb;
-  border-color: rgba(148, 163, 184, 0.2);
-}
 
 /* Main */
 .main {
   display: grid;
-  grid-template-rows: 64px 1fr;
+  grid-template-rows: 76px 1fr;
 }
 
 /* Topbar */
@@ -448,7 +434,7 @@ async function startUpload() {
   align-items: center;
   justify-content: space-between;
   padding: 0 18px;
-}
+min-height: 76px; }
 .tb-title {
   display: flex;
   align-items: baseline;
@@ -456,31 +442,17 @@ async function startUpload() {
 }
 .tb-title-strong {
   font-weight: 900;
-  font-size: 15px;
+  font-size: 16px;
 }
 .tb-sub {
   color: #6b7280;
   font-size: 12px;
 }
-.tb-right {
-  display: flex;
-  gap: 10px;
-}
-.tb-icon {
-  width: 38px;
-  height: 38px;
-  border-radius: 12px;
-  border: 1px solid #e5e7eb;
-  background: #fff;
-  cursor: not-allowed;
-  opacity: 0.6;
-}
-
 /* Content */
 .content {
-  max-width: none;
+  max-width: 1480px;
   width: 100%;
-  margin: 0;
+  margin: 0 auto;
   padding: 16px 12px 32px;
   display: grid;
   gap: 16px;
@@ -650,6 +622,18 @@ async function startUpload() {
   }
 }
 </style>
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

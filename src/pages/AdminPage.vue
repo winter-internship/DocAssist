@@ -6,7 +6,6 @@
         <div class="sb-logo">
           <img src="/logo.png" alt="DoQ" />
         </div>
-        <div class="sb-name">DoQ</div>
       </div>
 
       <div class="sb-search">
@@ -41,9 +40,6 @@
         </button>
       </nav>
 
-      <div class="sb-bottom">
-        <button class="sb-mini" @click="go('home')" title="Home">🏠</button>
-      </div>
     </aside>
 
     <!-- Main -->
@@ -59,13 +55,12 @@
           <div class="tb-meta">
             <span class="pill">상태: 정상</span>
             <span class="muted">·</span>
-            <span class="muted">데모 데이터</span>
+            <span class="muted">데이터</span>
           </div>
         </div>
 
         <div class="tb-right">
           <button class="btn btn-outline" type="button" @click="refreshMock">새로고침</button>
-          <button class="btn btn-primary" type="button" @click="deployMock">배포/점검(데모)</button>
         </div>
       </header>
 
@@ -142,7 +137,7 @@
 
             <div class="actions">
               <button class="btn btn-outline" type="button" @click="openLogs">에러 로그 보기</button>
-              <button class="btn btn-primary" type="button" @click="restartMock">워커 재시작(데모)</button>
+              <button class="btn btn-primary" type="button" @click="restartMock">워커 재시작</button>
             </div>
           </article>
 
@@ -193,7 +188,7 @@
               <h2>사용자 관리</h2>
               <div class="head-actions">
                 <input class="input" v-model="userQ" placeholder="이메일/이름 검색..." />
-                <button class="btn btn-outline btn-sm" @click="createUserMock">+ 사용자 추가(데모)</button>
+                <button class="btn btn-outline btn-sm" @click="createUserMock">+ 사용자 추가</button>
               </div>
             </div>
 
@@ -243,7 +238,7 @@
                   <option value="processing">처리중</option>
                   <option value="failed">실패</option>
                 </select>
-                <button class="btn btn-outline btn-sm" @click="requeueMock">실패 재시도(데모)</button>
+                <button class="btn btn-outline btn-sm" @click="requeueMock">실패 재시도</button>
               </div>
             </div>
 
@@ -289,7 +284,7 @@
                   <option value="in_progress">처리 중</option>
                   <option value="resolved">완료</option>
                 </select>
-                <button class="btn btn-outline btn-sm" @click="bulkResolveMock">일괄 처리(데모)</button>
+                <button class="btn btn-outline btn-sm" @click="bulkResolveMock">일괄 처리</button>
               </div>
             </div>
 
@@ -331,7 +326,7 @@
             <div class="card-head">
               <h2>역할 관리</h2>
               <div class="head-actions">
-                <button class="btn btn-outline btn-sm" @click="createRoleMock">+ 역할 추가(데모)</button>
+                <button class="btn btn-outline btn-sm" @click="createRoleMock">+ 역할 추가</button>
               </div>
             </div>
 
@@ -364,7 +359,7 @@
             <div class="card-head">
               <h2>접근 정책</h2>
               <div class="head-actions">
-                <button class="btn btn-outline btn-sm" @click="syncPolicyMock">동기화(데모)</button>
+                <button class="btn btn-outline btn-sm" @click="syncPolicyMock">동기화</button>
               </div>
             </div>
 
@@ -445,7 +440,7 @@
               <div class="set-row">
                 <div>
                   <div class="strong">분석 워커 동시 처리 수</div>
-                  <div class="muted small">(데모) 실제는 서버 설정 값</div>
+                  <div class="muted small">실제는 서버 설정 값</div>
                 </div>
                 <input class="input small-input" type="number" v-model.number="settings.workerConcurrency" min="1" max="64" />
               </div>
@@ -467,7 +462,7 @@
               </div>
 
               <div class="actions">
-                <button class="btn btn-primary" @click="saveSettingsMock">저장(데모)</button>
+                <button class="btn btn-primary" @click="saveSettingsMock">저장</button>
                 <button class="btn btn-outline" @click="resetSettingsMock">초기화</button>
               </div>
             </div>
@@ -552,10 +547,10 @@ function jobLabel(s: JobStatus) {
   return "실패";
 }
 function inspectJob(j: JobItem) {
-  showToast(`작업 보기(데모): ${j.id}`);
+  showToast(`작업 보기: ${j.id}`);
 }
 function cancelMock(j: JobItem) {
-  showToast(`취소(데모): ${j.id}`);
+  showToast(`취소: ${j.id}`);
 }
 
 /* ---- Users (demo) ---- */
@@ -584,14 +579,14 @@ const filteredUsers = computed(() => {
 
 function toggleRoleMock(u: UserItem) {
   users.value = users.value.map((x) => (x.id === u.id ? { ...x, role: x.role === "admin" ? "user" : "admin" } : x));
-  showToast("권한 변경(데모)");
+  showToast("권한 변경");
 }
 function toggleActiveMock(u: UserItem) {
   users.value = users.value.map((x) => (x.id === u.id ? { ...x, active: !x.active } : x));
-  showToast("활성/정지 변경(데모)");
+  showToast("활성/정지 변경");
 }
 function createUserMock() {
-  showToast("사용자 추가(데모)");
+  showToast("사용자 추가");
 }
 
 /* ---- Docs (demo) ---- */
@@ -627,13 +622,13 @@ function docLabel(s: DocStatus) {
   return "실패";
 }
 function deleteDocMock(d: DocItem) {
-  const ok = confirm(`삭제할까요? (데모)\n${d.id} - ${d.title}`);
+  const ok = confirm(`삭제할까요?\n${d.id} - ${d.title}`);
   if (!ok) return;
   docs.value = docs.value.filter((x) => x.id !== d.id);
-  showToast("삭제(데모)");
+  showToast("삭제");
 }
 function requeueMock() {
-  showToast("재시도(데모): 실패 문서 재처리 요청 예정");
+  showToast("재시도: 실패 문서 재처리 요청 예정");
 }
 
 /* ---- Tickets (demo) ---- */
@@ -683,15 +678,15 @@ function ticketStatusLabel(s: TicketStatus) {
 }
 function assignTicketMock(t: TicketItem) {
   tickets.value = tickets.value.map((x) => (x.id === t.id ? { ...x, status: "in_progress" } : x));
-  showToast(`담당 지정(데모): ${t.id}`);
+  showToast(`담당 지정: ${t.id}`);
 }
 function resolveTicketMock(t: TicketItem) {
   tickets.value = tickets.value.map((x) => (x.id === t.id ? { ...x, status: "resolved" } : x));
-  showToast(`처리 완료(데모): ${t.id}`);
+  showToast(`처리 완료: ${t.id}`);
 }
 function bulkResolveMock() {
   tickets.value = tickets.value.map((x) => (x.status === "resolved" ? x : { ...x, status: "resolved" }));
-  showToast("일괄 처리(데모)");
+  showToast("일괄 처리");
 }
 
 /* ---- Access control (demo) ---- */
@@ -723,20 +718,20 @@ const policies = ref<PolicyItem[]>([
 ]);
 
 function createRoleMock() {
-  showToast("역할 추가(데모)");
+  showToast("역할 추가");
 }
 function editRoleMock(r: RoleItem) {
-  showToast(`역할 편집(데모): ${r.name}`);
+  showToast(`역할 편집: ${r.name}`);
 }
 function auditRoleMock(r: RoleItem) {
-  showToast(`권한 감사(데모): ${r.name}`);
+  showToast(`권한 감사: ${r.name}`);
 }
 function syncPolicyMock() {
-  showToast("정책 동기화(데모)");
+  showToast("정책 동기화");
 }
 function togglePolicyMock(p: PolicyItem) {
   policies.value = policies.value.map((x) => (x.id === p.id ? { ...x, enabled: !x.enabled } : x));
-  showToast(`정책 ${p.enabled ? "중지" : "활성"}(데모): ${p.id}`);
+  showToast(`정책 ${p.enabled ? "중지" : "활성"}: ${p.id}`);
 }
 
 /* ---- Logs (demo) ---- */
@@ -769,7 +764,7 @@ function generateLogMock() {
     { id: `l${Date.now()}`, level: "info", at: new Date().toISOString(), msg: "Health check OK" },
     ...logs.value,
   ];
-  showToast("로그 생성(데모)");
+  showToast("로그 생성");
 }
 
 /* ---- Settings (demo) ---- */
@@ -779,7 +774,7 @@ const settings = ref({
   maxUploadMb: 25,
 });
 function saveSettingsMock() {
-  showToast("저장(데모): 서버에 반영 예정");
+  showToast("저장: 서버에 반영 예정");
 }
 function resetSettingsMock() {
   settings.value = { workerConcurrency: 4, maxEvidence: 6, maxUploadMb: 25 };
@@ -788,13 +783,13 @@ function resetSettingsMock() {
 
 /* ---- Header actions (demo) ---- */
 function refreshMock() {
-  showToast("새로고침(데모)");
+  showToast("새로고침");
 }
 function deployMock() {
-  showToast("배포/점검(데모)");
+  showToast("배포/점검");
 }
 function restartMock() {
-  showToast("워커 재시작(데모)");
+  showToast("워커 재시작");
 }
 </script>
 
@@ -805,15 +800,20 @@ function restartMock() {
   --ring: rgba(29, 78, 216, 0.18);
 }
 
-.app {
+.app {  --ink: #111827;
+  --bg: #f4f6fb;
+  --line: #e5e7eb;
+  --card: #ffffff;
+  --card-solid: #ffffff;
+  --muted: #6b7280;
+
   min-height: 100vh;
-  background: #f4f6fb;
-  color: #111827;
+  background: var(--bg);
+  color: var(--ink);
   font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, "Noto Sans KR", Arial;
   display: grid;
   grid-template-columns: 280px 1fr;
 }
-
 /* Sidebar */
 .sidebar {
   background: rgba(255, 255, 255, 0.65);
@@ -824,33 +824,24 @@ function restartMock() {
   flex-direction: column;
   gap: 12px;
 }
-:global(:root[data-theme="dark"]) .sidebar {
-  background: rgba(12, 23, 43, 0.72);
-}
-
 .sb-brand {
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding: 8px 6px;
+  gap: 0;
+  padding: 10px 12px 12px;
 }
 .sb-logo {
-  width: 36px;
-  height: 36px;
-  border-radius: 12px;
-  background: rgba(255, 255, 255, 0.7);
-  border: 1px solid #e5e7eb;
+  width: 84px;
+  height: 84px;
+  border-radius: 22px;
   display: grid;
   place-items: center;
   overflow: hidden;
-}
-:global(:root[data-theme="dark"]) .sb-logo {
-  background: rgba(255, 255, 255, 0.06);
-  border-color: rgba(148, 163, 184, 0.2);
+  margin-left: 0;
 }
 .sb-logo img {
-  width: 22px;
-  height: 22px;
+  width: 100%;
+  height: 100%;
   object-fit: contain;
 }
 .sb-name {
@@ -869,11 +860,6 @@ function restartMock() {
   background: rgba(255, 255, 255, 0.7);
   outline: none;
   font-weight: 900;
-}
-:global(:root[data-theme="dark"]) .sb-input {
-  background: rgba(255, 255, 255, 0.06);
-  color: #e5e7eb;
-  border-color: rgba(148, 163, 184, 0.2);
 }
 .sb-input:focus {
   box-shadow: 0 0 0 3px var(--ring);
@@ -919,16 +905,24 @@ function restartMock() {
   background: #e5e7eb;
   margin: 6px 0;
 }
-:global(:root[data-theme="dark"]) .sb-sep {
-  background: rgba(148, 163, 184, 0.2);
-}
-
 .sb-bottom {
   margin-top: auto;
   display: flex;
   gap: 8px;
   padding: 8px 6px 0;
 }
+
+  .sb-logout {
+    width: 100%;
+    border-radius: 14px;
+    border: 1px solid #2563eb;
+    background: #2563eb;
+    color: #fff;
+    cursor: pointer;
+    font-weight: 900;
+    padding: 10px 12px;
+    text-align: center;
+  }
 .sb-mini {
   width: 40px;
   height: 40px;
@@ -937,11 +931,6 @@ function restartMock() {
   background: rgba(255, 255, 255, 0.7);
   cursor: pointer;
   font-size: 16px;
-}
-:global(:root[data-theme="dark"]) .sb-mini {
-  background: rgba(255, 255, 255, 0.06);
-  color: #e5e7eb;
-  border-color: rgba(148, 163, 184, 0.2);
 }
 
 /* Main */
@@ -980,11 +969,13 @@ function restartMock() {
 
 /* Content */
 .content {
-  max-width: 1280px;
+  max-width: 1480px;
+  width: 100%;
   margin: 0 auto;
-  padding: 8px 18px 44px;
+  padding: 16px 12px 32px;
   display: grid;
-  gap: 12px;
+  gap: 16px;
+  justify-items: stretch;
 }
 
 /* Tabs */
@@ -1253,6 +1244,15 @@ function restartMock() {
   }
 }
 </style>
+
+
+
+
+
+
+
+
+
 
 
 

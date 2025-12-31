@@ -6,7 +6,6 @@
         <div class="sb-logo">
           <img src="/logo.png" alt="DoQ" />
         </div>
-        <div class="sb-name">DoQ</div>
       </div>
 
       <div class="sb-search">
@@ -23,14 +22,14 @@
         </button>
 
         <button class="sb-item" @click="go('upload')">
-          <span class="ico">⬆️</span><span class="txt">업로드</span>
+          <span class="ico">📤</span><span class="txt">업로드</span>
         </button>
 
         <button class="sb-item" @click="go('qa')">
           <span class="ico">💬</span><span class="txt">Q&A</span>
         </button>
         <button class="sb-item" @click="go('terms')">
-          <span class="ico">📘</span><span class="txt">용어집</span>
+          <span class="ico">📚</span><span class="txt">용어집</span>
         </button>
         <div class="sb-sep"></div>
 
@@ -44,36 +43,21 @@
       </nav>
 
       <div class="sb-bottom">
-        <button
-          class="sb-mini"
-          @click="toggleTheme"
-          :title="theme === 'dark' ? 'Light' : 'Dark'"
-        >
-          {{ theme === "dark" ? "☀️" : "🌙" }}
-        </button>
-        <button class="sb-mini" @click="logout" title="Logout">↩️</button>
+        <button class="sb-logout" @click="logout">log out</button>
       </div>
     </aside>
 
     <!-- Main -->
     <div class="main">
-      <header class="top">
-        <div class="top-bg"></div>
-
-        <div class="top-inner">
-          <div class="top-left">
-            <div class="crumb">
-              <span class="pill">Settings</span>
-              <span class="dot">•</span>
-              <span class="muted">프로필</span>
-            </div>
-            <h1 class="title">프로필 / 설정</h1>
-            <p class="sub muted">문서 이해 보조 옵션과 화면 표시를 개인화합니다.</p>
+      <header class="topbar">
+        <div class="tb-left">
+          <div class="tb-title">
+            <span class="tb-title-strong">프로필/설정</span>
+            <span class="tb-sub">· 계정 정보와 환경 설정</span>
           </div>
-
-          <div class="top-right">
-            <button class="btn btn-ghost" @click="save">저장</button>
-          </div>
+        </div>
+        <div class="tb-right">
+          <button class="btn btn-save" @click="save">저장</button>
         </div>
       </header>
 
@@ -87,11 +71,6 @@
             </div>
 
             <div class="pc-meta">
-              <div class="name-row">
-                <div class="name">{{ user.name }}</div>
-                <span v-if="isAdmin" class="admin-pill">🛡️ Admin</span>
-              </div>
-
               <div class="email muted">{{ user.email }}</div>
 
               <div class="meta-line">
@@ -178,10 +157,18 @@
               <div class="field">
                 <div class="label">테마</div>
                 <div class="row">
-                  <button class="btn btn-outline" @click="setTheme('light')" :disabled="theme === 'light'">
+                  <button
+                    class="btn btn-outline theme-btn"
+                    :class="{ on: theme === 'light' }"
+                    @click="setTheme('light')"
+                  >
                     라이트
                   </button>
-                  <button class="btn btn-outline" @click="setTheme('dark')" :disabled="theme === 'dark'">
+                  <button
+                    class="btn btn-outline theme-btn"
+                    :class="{ on: theme === 'dark' }"
+                    @click="setTheme('dark')"
+                  >
                     다크
                   </button>
                 </div>
@@ -311,6 +298,7 @@ function go(name: string) {
 function applyTheme(next: "light" | "dark") {
   theme.value = next;
   document.documentElement.setAttribute("data-theme", next);
+  document.body.setAttribute("data-theme", next);
   localStorage.setItem("theme", next);
 }
 function setTheme(next: "light" | "dark") {
@@ -406,6 +394,13 @@ function formatDateTime(iso: string) {
 
 /* Layout */
 .app {
+  --ink: #111827;
+  --bg: #f4f6fb;
+  --line: #e5e7eb;
+  --card: #ffffff;
+  --card-solid: #ffffff;
+  --muted: #6b7280;
+
   min-height: 100vh;
   display: grid;
   grid-template-columns: 280px 1fr;
@@ -413,8 +408,7 @@ function formatDateTime(iso: string) {
   color: var(--ink);
   background: var(--bg);
 }
-
-/* Sidebar */
+ /* Sidebar */
 .sidebar {
   background: rgba(255, 255, 255, 0.65);
   border-right: 1px solid var(--line);
@@ -424,32 +418,24 @@ function formatDateTime(iso: string) {
   flex-direction: column;
   gap: 12px;
 }
-:global(:root[data-theme="dark"]) .sidebar {
-  background: rgba(12, 23, 43, 0.72);
-}
-
 .sb-brand {
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding: 8px 6px;
+  gap: 0;
+  padding: 10px 12px 12px;
 }
 .sb-logo {
-  width: 36px;
-  height: 36px;
-  border-radius: 12px;
-  background: rgba(255, 255, 255, 0.7);
-  border: 1px solid var(--line);
+  width: 84px;
+  height: 84px;
+  border-radius: 22px;
   display: grid;
   place-items: center;
   overflow: hidden;
-}
-:global(:root[data-theme="dark"]) .sb-logo {
-  background: rgba(255, 255, 255, 0.06);
+  margin-left: 0;
 }
 .sb-logo img {
-  width: 22px;
-  height: 22px;
+  width: 100%;
+  height: 100%;
   object-fit: contain;
 }
 .sb-name {
@@ -468,10 +454,6 @@ function formatDateTime(iso: string) {
   background: rgba(255, 255, 255, 0.7);
   outline: none;
   font-weight: 900;
-}
-:global(:root[data-theme="dark"]) .sb-input {
-  background: rgba(255, 255, 255, 0.06);
-  color: var(--ink);
 }
 .sb-input:focus {
   box-shadow: 0 0 0 3px var(--ring);
@@ -524,6 +506,18 @@ function formatDateTime(iso: string) {
   gap: 8px;
   padding: 8px 6px 0;
 }
+
+  .sb-logout {
+    width: 100%;
+    border-radius: 14px;
+    border: 1px solid #2563eb;
+    background: #2563eb;
+    color: #fff;
+    cursor: pointer;
+    font-weight: 900;
+    padding: 10px 12px;
+    text-align: center;
+  }
 .sb-mini {
   width: 40px;
   height: 40px;
@@ -532,10 +526,6 @@ function formatDateTime(iso: string) {
   background: rgba(255, 255, 255, 0.7);
   cursor: pointer;
   font-size: 16px;
-}
-:global(:root[data-theme="dark"]) .sb-mini {
-  background: rgba(255, 255, 255, 0.06);
-  color: var(--ink);
 }
 
 /* Main */
@@ -546,83 +536,58 @@ function formatDateTime(iso: string) {
 }
 
 /* Header */
-.top {
-  position: relative;
-  padding: 22px 24px 18px;
-}
-.top-bg {
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(
-    135deg,
-    rgba(29, 78, 216, 0.55),
-    rgba(14, 165, 233, 0.38),
-    rgba(59, 130, 246, 0.28)
-  );
+.topbar {
+  background: #fff;
   border-bottom: 1px solid var(--line);
-}
-:global(:root[data-theme="dark"]) .top-bg {
-  background: linear-gradient(
-    135deg,
-    rgba(20, 52, 96, 0.85),
-    rgba(10, 92, 112, 0.55),
-    rgba(48, 36, 110, 0.55)
-  );
-}
-.top-inner {
-  position: relative;
-  max-width: 1180px;
-  margin: 0 auto;
-  display: flex;
-  justify-content: space-between;
-  gap: 16px;
-  align-items: flex-end;
-}
-.crumb {
   display: flex;
   align-items: center;
+  justify-content: space-between;
+  padding: 0 18px;
+  min-height: 76px;
+  gap: 12px;
+}
+.tb-left {
+  display: grid;
+  gap: 6px;
+}
+.tb-title {
+  display: flex;
+  align-items: baseline;
   gap: 8px;
-  margin-bottom: 8px;
 }
-.pill {
-  font-size: 12px;
-  padding: 4px 10px;
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.55);
-  border: 1px solid rgba(255, 255, 255, 0.45);
+.tb-title-strong {
   font-weight: 1000;
+  font-size: 16px;
+  letter-spacing: -0.2px;
 }
-:global(:root[data-theme="dark"]) .pill {
-  background: rgba(12, 23, 43, 0.55);
-  border-color: var(--line);
+.tb-sub {
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 700;
 }
-.dot {
-  opacity: 0.7;
-}
-.title {
-  margin: 0;
-  font-size: 28px;
-  font-weight: 1100;
-  letter-spacing: -0.4px;
-}
-.sub {
-  margin: 8px 0 0;
-}
-.top-right {
+.tb-right {
   display: flex;
   gap: 10px;
   align-items: center;
   flex-wrap: wrap;
 }
+.muted {
+  color: var(--muted);
+  font-size: 12px;
+}
+.small {
+  font-size: 12px;
+}
 
 /* Content */
 .content {
-  max-width: 1180px;
-  margin: 0 auto;
+  max-width: 1480px;
   width: 100%;
-  padding: 18px 24px 40px;
+  margin: 0 auto;
+  padding: 16px 12px 32px;
   display: grid;
-  gap: 14px;
+  gap: 16px;
+  justify-items: stretch;
 }
 
 /* Cards */
@@ -707,9 +672,6 @@ function formatDateTime(iso: string) {
   background: rgba(255, 255, 255, 0.55);
   font-weight: 1000;
 }
-:global(:root[data-theme="dark"]) .tag {
-  background: rgba(255, 255, 255, 0.04);
-}
 .sep {
   opacity: 0.6;
 }
@@ -722,11 +684,6 @@ function formatDateTime(iso: string) {
   background: rgba(17, 24, 39, 0.1);
   border: 1px solid rgba(17, 24, 39, 0.15);
 }
-:global(:root[data-theme="dark"]) .admin-pill {
-  background: rgba(255, 255, 255, 0.06);
-  border-color: var(--line);
-}
-
 /* Grid equal */
 .grid {
   display: grid;
@@ -737,7 +694,7 @@ function formatDateTime(iso: string) {
 .card-eq {
   display: flex;
   flex-direction: column;
-  min-height: 320px;
+  min-height: 280px;
 }
 .form-eq {
   display: grid;
@@ -788,11 +745,6 @@ function formatDateTime(iso: string) {
   background: rgba(17, 24, 39, 0.1);
   border: 1px solid rgba(17, 24, 39, 0.15);
 }
-:global(:root[data-theme="dark"]) .admin-badge {
-  background: rgba(255, 255, 255, 0.06);
-  border-color: var(--line);
-}
-
 /* Fields */
 .field {
   display: grid;
@@ -814,12 +766,6 @@ function formatDateTime(iso: string) {
   outline: none;
   font-weight: 950;
 }
-:global(:root[data-theme="dark"]) .input,
-:global(:root[data-theme="dark"]) .select {
-  background: rgba(255, 255, 255, 0.06);
-  color: var(--ink);
-}
-
 .help {
   font-size: 12px;
 }
@@ -844,10 +790,6 @@ function formatDateTime(iso: string) {
   cursor: pointer;
   border: 1px solid var(--line);
   background: rgba(255, 255, 255, 0.7);
-}
-:global(:root[data-theme="dark"]) .seg-btn {
-  background: rgba(255, 255, 255, 0.06);
-  color: var(--ink);
 }
 .seg-btn.on {
   border-color: rgba(29, 78, 216, 0.3);
@@ -913,10 +855,10 @@ function formatDateTime(iso: string) {
   border: 1px solid transparent;
   background: rgba(255, 255, 255, 0.75);
 }
-:global(:root[data-theme="dark"]) .btn {
-  background: rgba(255, 255, 255, 0.06);
-  color: var(--ink);
-  border-color: var(--line);
+.btn-save {
+  background: linear-gradient(90deg, #2563eb, #1d4ed8);
+  color: #fff;
+  border-color: rgba(37, 99, 235, 0.35);
 }
 .btn-primary {
   background: linear-gradient(90deg, var(--b1), var(--b2));
@@ -925,6 +867,14 @@ function formatDateTime(iso: string) {
 }
 .btn-outline {
   border-color: var(--line);
+}
+.theme-btn.on {
+  background: #2563eb;
+  border-color: #2563eb;
+  color: #fff;
+}
+.theme-btn.on:hover {
+  background: #1d4ed8;
 }
 .btn-ghost {
   background: transparent;
@@ -978,6 +928,19 @@ function formatDateTime(iso: string) {
   }
 }
 </style>
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

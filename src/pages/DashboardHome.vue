@@ -6,7 +6,6 @@
         <div class="sb-logo">
           <img src="/logo.png" alt="DoQ" />
         </div>
-        <div class="sb-name">DoQ</div>
       </div>
 
       <nav class="sb-nav">
@@ -19,7 +18,7 @@
         </button>
 
         <button class="sb-item" @click="goUpload">
-          <span class="ico">⬆️</span><span class="txt">업로드</span>
+          <span class="ico">📤</span><span class="txt">업로드</span>
         </button>
 
         <button class="sb-item" @click="goQa">
@@ -43,10 +42,7 @@
       </nav>
 
       <div class="sb-bottom">
-        <button class="sb-mini" @click="toggleTheme">
-          {{ theme === "dark" ? "☀️" : "🌙" }}
-        </button>
-        <button class="sb-mini" @click="logout">↩️</button>
+        <button class="sb-logout" @click="logout">log out</button>
       </div>
     </aside>
 
@@ -374,15 +370,20 @@ function openDocument(docId: string) {
   --ring: rgba(29, 78, 216, 0.18);
 }
 
-.app {
+.app {  --ink: #111827;
+  --bg: #f4f6fb;
+  --line: #e5e7eb;
+  --card: #ffffff;
+  --card-solid: #ffffff;
+  --muted: #6b7280;
+
   min-height: 100vh;
   display: grid;
   grid-template-columns: 280px 1fr;
   font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, "Noto Sans KR", Arial;
-  color: #111827;
-  background: #f4f6fb;
+  color: var(--ink);
+  background: var(--bg);
 }
-
 /* Sidebar */
 .sidebar {
   background: rgba(255, 255, 255, 0.65);
@@ -393,33 +394,24 @@ function openDocument(docId: string) {
   flex-direction: column;
   gap: 12px;
 }
-:global(:root[data-theme="dark"]) .sidebar {
-  background: rgba(12, 23, 43, 0.72);
-}
-
 .sb-brand {
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding: 8px 6px;
+  gap: 0;
+  padding: 10px 12px 12px;
 }
 .sb-logo {
-  width: 36px;
-  height: 36px;
-  border-radius: 12px;
-  background: rgba(255, 255, 255, 0.7);
-  border: 1px solid #e5e7eb;
+  width: 84px;
+  height: 84px;
+  border-radius: 22px;
   display: grid;
   place-items: center;
   overflow: hidden;
-}
-:global(:root[data-theme="dark"]) .sb-logo {
-  background: rgba(255, 255, 255, 0.06);
-  border-color: rgba(148, 163, 184, 0.2);
+  margin-left: 0;
 }
 .sb-logo img {
-  width: 22px;
-  height: 22px;
+  width: 100%;
+  height: 100%;
   object-fit: contain;
 }
 .sb-name {
@@ -438,11 +430,6 @@ function openDocument(docId: string) {
   background: rgba(255, 255, 255, 0.7);
   outline: none;
   font-weight: 900;
-}
-:global(:root[data-theme="dark"]) .sb-input {
-  background: rgba(255, 255, 255, 0.06);
-  color: #e5e7eb;
-  border-color: rgba(148, 163, 184, 0.2);
 }
 .sb-input:focus {
   box-shadow: 0 0 0 3px var(--ring);
@@ -488,16 +475,24 @@ function openDocument(docId: string) {
   background: #e5e7eb;
   margin: 6px 0;
 }
-:global(:root[data-theme="dark"]) .sb-sep {
-  background: rgba(148, 163, 184, 0.2);
-}
-
 .sb-bottom {
   margin-top: auto;
   display: flex;
   gap: 8px;
   padding: 8px 6px 0;
 }
+
+  .sb-logout {
+    width: 100%;
+    border-radius: 14px;
+    border: 1px solid #2563eb;
+    background: #2563eb;
+    color: #fff;
+    cursor: pointer;
+    font-weight: 900;
+    padding: 10px 12px;
+    text-align: center;
+  }
 .sb-mini {
   width: 40px;
   height: 40px;
@@ -506,11 +501,6 @@ function openDocument(docId: string) {
   background: rgba(255, 255, 255, 0.7);
   cursor: pointer;
   font-size: 16px;
-}
-:global(:root[data-theme="dark"]) .sb-mini {
-  background: rgba(255, 255, 255, 0.06);
-  color: #e5e7eb;
-  border-color: rgba(148, 163, 184, 0.2);
 }
 
 /* Main */
@@ -522,21 +512,16 @@ function openDocument(docId: string) {
 .topbar {
   background: #fff;
   border-bottom: 1px solid #e5e7eb;
-  display: flex;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
   align-items: center;
-  justify-content: space-between;
   padding: 0 18px;
   gap: 12px;
 }
-:global(:root[data-theme="dark"]) .topbar {
-  background: rgba(12, 23, 43, 0.72);
-  color: #e5e7eb;
-  border-bottom-color: rgba(148, 163, 184, 0.2);
-}
-
 .tb-left {
   display: grid;
   gap: 6px;
+  justify-self: start;
 }
 .tb-title {
   display: flex;
@@ -544,8 +529,8 @@ function openDocument(docId: string) {
   gap: 8px;
 }
 .tb-title-strong {
-  font-weight: 1100;
-  font-size: 14px;
+  font-weight: 1000;
+  font-size: 16px;
   letter-spacing: -0.2px;
 }
 .tb-sub {
@@ -553,15 +538,12 @@ function openDocument(docId: string) {
   font-size: 12px;
   font-weight: 700;
 }
-:global(:root[data-theme="dark"]) .tb-sub {
-  color: rgba(229, 231, 235, 0.75);
-}
-
 .tb-right {
   display: flex;
   gap: 10px;
   align-items: center;
   flex-wrap: wrap;
+  justify-self: end;
 }
 
 .container {
@@ -864,14 +846,13 @@ function openDocument(docId: string) {
 }
 
 .tb-center {
-  flex: 1;
   display: flex;
   justify-content: center;
+  justify-self: center;
 }
 
 .tb-search {
-  width: 600px;
-  max-width: 90%;
+  width: min(720px, 88vw);
   padding: 10px 14px;
   border-radius: 14px;
   border: 1px solid #e5e7eb;
@@ -901,6 +882,18 @@ function openDocument(docId: string) {
 }
 
 </style>
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

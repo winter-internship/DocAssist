@@ -6,7 +6,6 @@
           <div class="sb-logo">
             <img src="/logo.png" alt="DoQ" />
           </div>
-          <div class="sb-name">DoQ</div>
         </div>
 
         <div class="sb-search">
@@ -23,14 +22,14 @@
           </button>
 
           <button class="sb-item" @click="go('upload')">
-            <span class="ico">⬆️</span><span class="txt">업로드</span>
+            <span class="ico">📤</span><span class="txt">업로드</span>
           </button>
 
           <button class="sb-item" @click="go('qa')">
             <span class="ico">💬</span><span class="txt">Q&A</span>
           </button>
         <button class="sb-item" @click="go('terms')">
-          <span class="ico">📘</span><span class="txt">용어집</span>
+          <span class="ico">📚</span><span class="txt">용어집</span>
         </button>
         <div class="sb-sep"></div>
 
@@ -44,14 +43,11 @@
         </nav>
 
         <div class="sb-bottom">
-          <button class="sb-mini" @click="toggleTheme" :title="theme === 'dark' ? 'Light' : 'Dark'">
-            {{ theme === "dark" ? "☀️" : "🌙" }}
-          </button>
-          <button class="sb-mini" @click="logout" title="Logout">↩️</button>
+          <button class="sb-logout" @click="logout">log out</button>
         </div>
       </aside>
-  
-      <!-- Main -->
+
+    <!-- Main -->
       <div class="main">
         <!-- Topbar -->
         <header class="topbar">
@@ -69,7 +65,7 @@
           </div>
   
           <div class="tb-right">
-            <button class="btn btn-outline" type="button" @click="exportMock">내보내기(데모)</button>
+            <button class="btn btn-outline" type="button" @click="exportMock">내보내기</button>
             <button class="btn btn-primary" type="button" @click="go('upload')">+ 새 문서 업로드</button>
           </div>
         </header>
@@ -77,34 +73,30 @@
         <main class="content">
           <!-- Filters -->
           <section class="filters">
-            <div class="left">
-              <select class="select" v-model="docFilter">
-                <option value="all">문서 전체</option>
-                <option v-for="d in docs" :key="d.id" :value="d.id">
-                  {{ d.title }}
-                </option>
-              </select>
+            <select class="select" v-model="docFilter">
+              <option value="all">문서 전체</option>
+              <option v-for="d in docs" :key="d.id" :value="d.id">
+                {{ d.title }}
+              </option>
+            </select>
   
-              <select class="select" v-model="tagFilter">
-                <option value="all">태그 전체</option>
-                <option value="legal">법/규정</option>
-                <option value="security">보안</option>
-                <option value="finance">재무</option>
-                <option value="policy">정책</option>
-                <option value="general">일반</option>
-              </select>
+            <select class="select" v-model="tagFilter">
+              <option value="all">태그 전체</option>
+              <option value="legal">법/규정</option>
+              <option value="security">보안</option>
+              <option value="finance">재무</option>
+              <option value="policy">정책</option>
+              <option value="general">일반</option>
+            </select>
   
-              <select class="select" v-model="sortBy">
-                <option value="freq">빈도순</option>
-                <option value="alpha">가나다순</option>
-                <option value="new">최근추가순</option>
-              </select>
-            </div>
+            <select class="select" v-model="sortBy">
+              <option value="freq">빈도순</option>
+              <option value="alpha">가나다순</option>
+              <option value="new">최근추가순</option>
+            </select>
   
-            <div class="right">
-              <input v-model.trim="q" class="input" placeholder="용어/정의 검색..." />
-              <button class="btn btn-outline" type="button" @click="resetFilters">초기화</button>
-            </div>
+            <input v-model.trim="q" class="input" placeholder="용어/정의 검색..." />
+            <button class="btn btn-outline" type="button" @click="resetFilters">초기화</button>
           </section>
   
           <section class="grid">
@@ -210,7 +202,7 @@
                   <div class="block-title">액션</div>
                   <div class="actions">
                     <button class="btn btn-primary" type="button" @click="askWithTerm">
-                      이 용어로 Q&A 질문하기(데모)
+                      이 용어로 Q&A 질문하기
                     </button>
                     <button class="btn btn-outline" type="button" @click="copyDefinition">
                       정의 복사
@@ -481,17 +473,17 @@
   }
   
   function openLastDoc() {
-    // 데모: 고정 문서
+    //  고정 문서
     router.push({ name: "documentView", params: { id: "doc_001" } }).catch(() => {});
   }
   
   function askWithTerm() {
     if (!selected.value) return;
-    alert(`(데모) Q&A로 이동: "${selected.value.term}" 관련 질문을 생성할 예정`);
+    alert(`Q&A로 이동: "${selected.value.term}" 관련 질문을 생성할 예정`);
   }
   
   function exportMock() {
-    alert("(데모) 용어집 내보내기: CSV/PDF로 다운로드 연결 예정");
+    alert("용어집 내보내기: CSV/PDF로 다운로드 연결 예정");
   }
  </script>
   
@@ -502,16 +494,21 @@
     --ring: rgba(29, 78, 216, 0.18);
   }
 
-  .app {
+  .app {  --ink: #111827;
+  --bg: #f4f6fb;
+  --line: #e5e7eb;
+  --card: #ffffff;
+  --card-solid: #ffffff;
+  --muted: #6b7280;
+
     min-height: 100vh;
     display: grid;
     grid-template-columns: 280px 1fr;
     font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, "Noto Sans KR", Arial;
-    color: #111827;
-    background: #f4f6fb;
+    color: var(--ink);
+    background: var(--bg);
   }
-  
-  /* Sidebar */
+/* Sidebar */
   .sidebar {
     background: rgba(255, 255, 255, 0.65);
     border-right: 1px solid #e5e7eb;
@@ -521,33 +518,24 @@
     flex-direction: column;
     gap: 12px;
   }
-  :global(:root[data-theme="dark"]) .sidebar {
-    background: rgba(12, 23, 43, 0.72);
-  }
-
   .sb-brand {
     display: flex;
     align-items: center;
-    gap: 10px;
-    padding: 8px 6px;
+    gap: 0;
+    padding: 10px 12px 12px;
   }
   .sb-logo {
-    width: 36px;
-    height: 36px;
-    border-radius: 12px;
-    background: rgba(255, 255, 255, 0.7);
-    border: 1px solid #e5e7eb;
+    width: 84px;
+    height: 84px;
+    border-radius: 22px;
     display: grid;
     place-items: center;
     overflow: hidden;
-  }
-  :global(:root[data-theme="dark"]) .sb-logo {
-    background: rgba(255, 255, 255, 0.06);
-    border-color: rgba(148, 163, 184, 0.2);
+  margin-left: 0;
   }
   .sb-logo img {
-    width: 22px;
-    height: 22px;
+    width: 100%;
+    height: 100%;
     object-fit: contain;
   }
   .sb-name {
@@ -566,11 +554,6 @@
     background: rgba(255, 255, 255, 0.7);
     outline: none;
     font-weight: 900;
-  }
-  :global(:root[data-theme="dark"]) .sb-input {
-    background: rgba(255, 255, 255, 0.06);
-    color: #e5e7eb;
-    border-color: rgba(148, 163, 184, 0.2);
   }
   .sb-input:focus {
     box-shadow: 0 0 0 3px var(--ring);
@@ -616,17 +599,25 @@
     background: #e5e7eb;
     margin: 6px 0;
   }
-  :global(:root[data-theme="dark"]) .sb-sep {
-    background: rgba(148, 163, 184, 0.2);
-  }
-
   .sb-bottom {
     margin-top: auto;
     display: flex;
     gap: 8px;
     padding: 8px 6px 0;
   }
-  .sb-mini {
+
+  .sb-logout {
+    width: 100%;
+    border-radius: 14px;
+    border: 1px solid #2563eb;
+    background: #2563eb;
+    color: #fff;
+    cursor: pointer;
+    font-weight: 900;
+    padding: 10px 12px;
+    text-align: center;
+  }
+.sb-mini {
     width: 40px;
     height: 40px;
     border-radius: 14px;
@@ -635,12 +626,7 @@
     cursor: pointer;
     font-size: 16px;
   }
-  :global(:root[data-theme="dark"]) .sb-mini {
-    background: rgba(255, 255, 255, 0.06);
-    color: #e5e7eb;
-    border-color: rgba(148, 163, 184, 0.2);
-  }
-  
+
   /* Main */
   .main {
     display: grid;
@@ -699,43 +685,50 @@
   }
   
   /* Content */
-  .content {
-    max-width: 1280px;
-    margin: 0 auto;
-    padding: 16px 18px 44px;
-    display: grid;
-    gap: 14px;
-  }
+.content {
+  max-width: 1480px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 16px 12px 32px;
+  display: grid;
+  gap: 16px;
+  justify-items: stretch;
+}
   
   /* Filters */
-  .filters {
-    display: flex;
-    justify-content: space-between;
-    gap: 12px;
-    flex-wrap: wrap;
-    align-items: center;
-  }
-  .filters .left,
-  .filters .right {
-    display: flex;
-    gap: 10px;
-    flex-wrap: wrap;
-    align-items: center;
-  }
+.filters {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: nowrap;
+  position: sticky;
+  top: 0;
+  z-index: 5;
+  background: #f4f6fb;
+  padding: 10px 0;
+}
   .select {
     border: 1px solid #e5e7eb;
     border-radius: 14px;
     padding: 10px 12px;
     background: #fff;
     font-weight: 800;
+    width: 220px;
+    flex: 0 0 auto;
   }
   .input {
-    width: min(420px, 78vw);
+    flex: 1 1 420px;
+    max-width: 720px;
+    min-width: 280px;
     border: 1px solid #e5e7eb;
     border-radius: 14px;
     padding: 10px 12px;
     outline: none;
     background: #fff;
+  }
+  .filters .btn {
+    min-width: 84px;
+    flex: 0 0 auto;
   }
   .input:focus {
     border-color: #93c5fd;
@@ -743,21 +736,29 @@
   }
   
   /* Grid */
-  .grid {
-    display: grid;
-    grid-template-columns: 1fr 0.95fr;
-    gap: 14px;
-    align-items: start;
-  }
+.grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 16px;
+  align-items: stretch;
+}
   
   /* Cards */
-  .card {
-    background: #fff;
-    border: 1px solid #e5e7eb;
-    border-radius: 18px;
-    padding: 16px;
-    position: relative;
-  }
+.card {
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 18px;
+  padding: 20px;
+  position: relative;
+}
+.card.list,
+.card.detail {
+  display: flex;
+  flex-direction: column;
+  min-height: 560px;
+  height: clamp(560px, calc(100vh - 240px), 900px);
+  overflow: hidden;
+}
   .card-head {
     display: flex;
     align-items: center;
@@ -776,13 +777,20 @@
     align-items: center;
   }
   
-  .empty {
-    padding: 16px;
-    border: 1px dashed #e5e7eb;
-    border-radius: 14px;
-    color: #6b7280;
-    background: #fafafa;
-  }
+.empty {
+  padding: 18px;
+  border: 1px dashed #e5e7eb;
+  border-radius: 14px;
+  color: #6b7280;
+  background: #fafafa;
+}
+.card.list .empty,
+.card.detail .empty {
+  flex: 1 1 auto;
+  display: grid;
+  place-items: center;
+  text-align: center;
+}
   .inline {
     border: none;
     background: transparent;
@@ -793,21 +801,25 @@
   }
   
   /* List */
-  .term-list {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-    display: grid;
-    gap: 10px;
-  }
-  .term-item {
-    border: 1px solid #eef2f7;
-    border-radius: 14px;
-    padding: 12px;
-    display: flex;
-    justify-content: space-between;
-    gap: 12px;
-    cursor: pointer;
+.term-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  gap: 12px;
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow: auto;
+  padding-right: 2px;
+}
+.term-item {
+  border: 1px solid #eef2f7;
+  border-radius: 14px;
+  padding: 14px;
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  cursor: pointer;
   }
   .term-item:hover {
     border-color: #dbeafe;
@@ -867,13 +879,19 @@
     gap: 8px;
     align-items: center;
   }
-  .block {
-    margin-top: 14px;
-    border: 1px solid #eef2f7;
-    border-radius: 14px;
-    padding: 12px;
-    background: #fff;
-  }
+.detail-body {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow: auto;
+  padding-right: 2px;
+}
+.block {
+  margin-top: 16px;
+  border: 1px solid #eef2f7;
+  border-radius: 14px;
+  padding: 14px;
+  background: #fff;
+}
   .block-title {
     font-weight: 900;
     margin-bottom: 8px;
@@ -921,6 +939,10 @@
     justify-content: space-between;
     align-items: center;
     gap: 10px;
+  }
+  .card.list .pager {
+    margin-top: auto;
+    padding-top: 12px;
   }
   .pager-actions {
     display: flex;
@@ -985,8 +1007,25 @@
     .grid {
       grid-template-columns: 1fr;
     }
+    .card.list,
+    .card.detail {
+      height: auto;
+      min-height: 0;
+    }
   }
 </style>
   
+
+
+
+
+
+
+
+
+
+
+
+
 
 
