@@ -29,3 +29,19 @@ dist-ssr
 .env.production.local
 .env.development.local
 
+# Python cache/venv
+__pycache__/
+*.pyc
+.pytest_cache/
+venv/
+
+# Test results
+test-results/
+frontend/test-results/
+
+# Tooling
+.playwright-mcp/
+.taskmaster/
+
+# Runtime uploads
+backend/uploads/
