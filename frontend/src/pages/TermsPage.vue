@@ -1,268 +1,200 @@
 ﻿<template>
-  <div class="app">
-    <div class="overlay" v-if="sidebarOpen" @click="sidebarOpen = false" />
+  <AppLayout v-slot="{ toggleSidebar }">
+    <!-- Topbar -->
+    <header class="topbar">
+      <div class="tb-left">
+        <div class="tb-title">
+          <button class="hamburger" @click="toggleSidebar" aria-label="Open menu">☰</button>
+          <span class="tb-title-strong">용어집</span>
+          <span class="tb-sub">· 문서에서 추출된 전문 용어/정의를 모아봅니다</span>
+        </div>
 
-    <!-- Sidebar -->
-    <aside class="sidebar" :class="{ open: sidebarOpen }">
-      <div class="sb-brand">
-        <div class="sb-logo">
-          <img src="/logo.png" alt="DoQ" />
+        <div class="tb-meta">
+          <span class="pill">총 {{ filteredTerms.length }}개</span>
+          <span class="muted">·</span>
+          <span class="muted">{{ selectedDocLabel }}</span>
         </div>
       </div>
 
-      <div class="sb-search">
-        <input class="sb-input" placeholder="Search" v-model="sidebarQ" />
+      <div class="tb-right">
+        <button class="btn btn-outline" type="button" @click="exportMock">내보내기</button>
+        <button class="btn btn-primary" type="button" @click="goUpload">+ 새 문서 업로드</button>
       </div>
+    </header>
 
-      <nav class="sb-nav">
-        <button class="sb-item" @click="go('home')">
-          <span class="ico">🏠</span><span class="txt">홈</span>
-        </button>
+    <main class="content">
+      <!-- Filters -->
+      <section class="filters">
+        <select class="select" v-model="docFilter">
+          <option value="all">문서 전체</option>
+          <option v-for="d in docs" :key="d.id" :value="d.id">
+            {{ d.title }}
+          </option>
+        </select>
 
-        <button class="sb-item" @click="go('drive')">
-          <span class="ico">🗂️</span><span class="txt">드라이브</span>
-        </button>
+        <select class="select" v-model="tagFilter">
+          <option value="all">태그 전체</option>
+          <option value="legal">법/규정</option>
+          <option value="security">보안</option>
+          <option value="finance">재무</option>
+          <option value="policy">정책</option>
+          <option value="general">일반</option>
+        </select>
 
-        <button class="sb-item" @click="go('upload')">
-          <span class="ico">📤</span><span class="txt">업로드</span>
-        </button>
+        <select class="select" v-model="sortBy">
+          <option value="freq">빈도순</option>
+          <option value="alpha">가나다순</option>
+          <option value="new">최근추가순</option>
+        </select>
 
-        <button class="sb-item" @click="go('qa')">
-          <span class="ico">💬</span><span class="txt">Q&A</span>
-        </button>
+        <input v-model.trim="q" class="input" placeholder="용어/정의 검색..." />
+        <button class="btn btn-outline" type="button" @click="resetFilters">초기화</button>
+      </section>
 
-        <button class="sb-item" @click="go('terms')">
-          <span class="ico">📚</span><span class="txt">용어집</span>
-        </button>
-
-        <div class="sb-sep"></div>
-
-        <button class="sb-item" @click="go('profile')">
-          <span class="ico">👤</span><span class="txt">프로필</span>
-        </button>
-
-        <button v-if="isAdmin" class="sb-item" @click="go('admin')">
-          <span class="ico">🛡️</span><span class="txt">관리자</span>
-        </button>
-      </nav>
-
-      <div class="sb-bottom">
-        <button class="sb-logout" @click="logout">log out</button>
-      </div>
-    </aside>
-
-    <!-- Main -->
-    <div class="main">
-      <!-- Topbar -->
-      <header class="topbar">
-        <div class="tb-left">
-          <div class="tb-title">
-            <button class="hamburger" @click="sidebarOpen = true" aria-label="Open menu">☰</button>
-            <span class="tb-title-strong">용어집</span>
-            <span class="tb-sub">· 문서에서 추출된 전문 용어/정의를 모아봅니다</span>
+      <section class="grid">
+        <!-- List -->
+        <article class="card list">
+          <div class="card-head">
+            <h2>용어 목록</h2>
+            <div class="head-actions">
+              <button class="link" type="button" @click="togglePinnedOnly">
+                {{ pinnedOnly ? "전체 보기" : "핀만 보기" }}
+              </button>
+            </div>
           </div>
 
-          <div class="tb-meta">
-            <span class="pill">총 {{ filteredTerms.length }}개</span>
-            <span class="muted">·</span>
-            <span class="muted">{{ selectedDocLabel }}</span>
+          <div v-if="filteredTerms.length === 0" class="empty">
+            결과가 없어요.
+            <button class="inline" type="button" @click="resetFilters">필터 초기화</button>
           </div>
-        </div>
 
-        <div class="tb-right">
-          <button class="btn btn-outline" type="button" @click="exportMock">내보내기</button>
-          <button class="btn btn-primary" type="button" @click="go('upload')">+ 새 문서 업로드</button>
-        </div>
-      </header>
+          <ul v-else class="term-list">
+            <li
+              v-for="t in pagedTerms"
+              :key="t.id"
+              class="term-item"
+              :class="{ active: selected?.id === t.id }"
+              @click="selectTerm(t)"
+            >
+              <div class="term-left">
+                <div class="term-title">
+                  <span class="pin" @click.stop="togglePin(t)">{{ t.pinned ? "📌" : "📍" }}</span>
+                  {{ t.term }}
+                </div>
+                <div class="term-sub muted">
+                  <span class="chip">{{ tagLabel(t.tag) }}</span>
+                  <span class="muted">·</span>
+                  <span class="muted">{{ docTitle(t.docId) }}</span>
+                </div>
+              </div>
 
-      <main class="content">
-        <!-- Filters -->
-        <section class="filters">
-          <select class="select" v-model="docFilter">
-            <option value="all">문서 전체</option>
-            <option v-for="d in docs" :key="d.id" :value="d.id">
-              {{ d.title }}
-            </option>
-          </select>
-
-          <select class="select" v-model="tagFilter">
-            <option value="all">태그 전체</option>
-            <option value="legal">법/규정</option>
-            <option value="security">보안</option>
-            <option value="finance">재무</option>
-            <option value="policy">정책</option>
-            <option value="general">일반</option>
-          </select>
-
-          <select class="select" v-model="sortBy">
-            <option value="freq">빈도순</option>
-            <option value="alpha">가나다순</option>
-            <option value="new">최근추가순</option>
-          </select>
-
-          <input v-model.trim="q" class="input" placeholder="용어/정의 검색..." />
-          <button class="btn btn-outline" type="button" @click="resetFilters">초기화</button>
-        </section>
-
-        <section class="grid">
-          <!-- List -->
-          <article class="card list">
-            <div class="card-head">
-              <h2>용어 목록</h2>
-              <div class="head-actions">
-                <button class="link" type="button" @click="togglePinnedOnly">
-                  {{ pinnedOnly ? "전체 보기" : "핀만 보기" }}
+              <div class="term-right">
+                <span class="badge">{{ t.freq }}회</span>
+                <button class="btn btn-sm btn-outline" type="button" @click.stop="copyTerm(t)">
+                  복사
                 </button>
               </div>
+            </li>
+          </ul>
+
+          <div v-if="filteredTerms.length > 0" class="pager">
+            <div class="muted">페이지 {{ page }} / {{ totalPages }}</div>
+            <div class="pager-actions">
+              <button class="btn btn-outline btn-sm" type="button" :disabled="page <= 1" @click="page--">이전</button>
+              <button class="btn btn-outline btn-sm" type="button" :disabled="page >= totalPages" @click="page++">다음</button>
             </div>
+          </div>
+        </article>
 
-            <div v-if="filteredTerms.length === 0" class="empty">
-              결과가 없어요.
-              <button class="inline" type="button" @click="resetFilters">필터 초기화</button>
+        <!-- Detail -->
+        <article class="card detail">
+          <div class="card-head">
+            <h2>상세</h2>
+            <div class="head-actions">
+              <button class="btn btn-outline btn-sm" type="button" :disabled="!selected" @click="openDocFromTerm">
+                문서에서 보기
+              </button>
             </div>
+          </div>
 
-            <ul v-else class="term-list">
-              <li
-                v-for="t in pagedTerms"
-                :key="t.id"
-                class="term-item"
-                :class="{ active: selected?.id === t.id }"
-                @click="selectTerm(t)"
-              >
-                <div class="term-left">
-                  <div class="term-title">
-                    <span class="pin" @click.stop="togglePin(t)">{{ t.pinned ? "📌" : "📍" }}</span>
-                    {{ t.term }}
-                  </div>
-                  <div class="term-sub muted">
-                    <span class="chip">{{ tagLabel(t.tag) }}</span>
-                    <span class="muted">·</span>
-                    <span class="muted">{{ docTitle(t.docId) }}</span>
-                  </div>
-                </div>
+          <div v-if="!selected" class="empty">
+            왼쪽에서 용어를 선택하면 정의/근거 문장을 보여줘요.
+          </div>
 
-                <div class="term-right">
-                  <span class="badge">{{ t.freq }}회</span>
-                  <button class="btn btn-sm btn-outline" type="button" @click.stop="copyTerm(t)">
-                    복사
-                  </button>
-                </div>
-              </li>
-            </ul>
-
-            <div v-if="filteredTerms.length > 0" class="pager">
-              <div class="muted">페이지 {{ page }} / {{ totalPages }}</div>
-              <div class="pager-actions">
-                <button class="btn btn-outline btn-sm" type="button" :disabled="page <= 1" @click="page--">이전</button>
-                <button class="btn btn-outline btn-sm" type="button" :disabled="page >= totalPages" @click="page++">다음</button>
+          <div v-else class="detail-body">
+            <div class="detail-title">
+              <div class="big">{{ selected.term }}</div>
+              <div class="detail-meta">
+                <span class="chip">{{ tagLabel(selected.tag) }}</span>
+                <span class="muted">·</span>
+                <span class="muted">{{ docTitle(selected.docId) }}</span>
+                <span class="muted">·</span>
+                <span class="muted">빈도 {{ selected.freq }}회</span>
               </div>
             </div>
-          </article>
 
-          <!-- Detail -->
-          <article class="card detail">
-            <div class="card-head">
-              <h2>상세</h2>
-              <div class="head-actions">
-                <button class="btn btn-outline btn-sm" type="button" :disabled="!selected" @click="openDocFromTerm">
-                  문서에서 보기
+            <div class="block">
+              <div class="block-title">정의(쉬운 설명)</div>
+              <div class="block-text">
+                {{ selected.definition }}
+              </div>
+            </div>
+
+            <div class="block">
+              <div class="block-title">근거 문장(예시)</div>
+              <ul class="evid">
+                <li v-for="(s, idx) in selected.evidence" :key="idx" class="evid-item">
+                  <span class="evid-no">#{{ idx + 1 }}</span>
+                  <span class="evid-text">{{ s }}</span>
+                </li>
+              </ul>
+            </div>
+
+            <div class="block">
+              <div class="block-title">액션</div>
+              <div class="actions">
+                <button class="btn btn-primary" type="button" @click="askWithTerm">
+                  이 용어로 Q&A 질문하기
+                </button>
+                <button class="btn btn-outline" type="button" @click="copyDefinition">
+                  정의 복사
                 </button>
               </div>
-            </div>
-
-            <div v-if="!selected" class="empty">
-              왼쪽에서 용어를 선택하면 정의/근거 문장을 보여줘요.
-            </div>
-
-            <div v-else class="detail-body">
-              <div class="detail-title">
-                <div class="big">{{ selected.term }}</div>
-                <div class="detail-meta">
-                  <span class="chip">{{ tagLabel(selected.tag) }}</span>
-                  <span class="muted">·</span>
-                  <span class="muted">{{ docTitle(selected.docId) }}</span>
-                  <span class="muted">·</span>
-                  <span class="muted">빈도 {{ selected.freq }}회</span>
-                </div>
-              </div>
-
-              <div class="block">
-                <div class="block-title">정의(쉬운 설명)</div>
-                <div class="block-text">
-                  {{ selected.definition }}
-                </div>
-              </div>
-
-              <div class="block">
-                <div class="block-title">근거 문장(예시)</div>
-                <ul class="evid">
-                  <li v-for="(s, idx) in selected.evidence" :key="idx" class="evid-item">
-                    <span class="evid-no">#{{ idx + 1 }}</span>
-                    <span class="evid-text">{{ s }}</span>
-                  </li>
-                </ul>
-              </div>
-
-              <div class="block">
-                <div class="block-title">액션</div>
-                <div class="actions">
-                  <button class="btn btn-primary" type="button" @click="askWithTerm">
-                    이 용어로 Q&A 질문하기
-                  </button>
-                  <button class="btn btn-outline" type="button" @click="copyDefinition">
-                    정의 복사
-                  </button>
-                </div>
-                <div class="hint muted">
-                  (연동 예정) FastAPI: 용어/정의/근거 문장 반환 → 여기서 Q&A로 넘기기
-                </div>
+              <div class="hint muted">
+                (연동 예정) FastAPI: 용어/정의/근거 문장 반환 → 여기서 Q&A로 넘기기
               </div>
             </div>
+          </div>
 
-            <div v-if="toast" class="toast">{{ toast }}</div>
-          </article>
-        </section>
-      </main>
-    </div>
-  </div>
+          <div v-if="toast" class="toast">{{ toast }}</div>
+        </article>
+      </section>
+    </main>
+  </AppLayout>
 </template>
 
 <script setup lang="ts">
 import { computed, ref, watch, onMounted } from "vue";
 import { useRouter } from "vue-router";
+import AppLayout from "../components/layout/AppLayout.vue";
 
-const sidebarQ = ref("");
-const sidebarOpen = ref(false);
 const theme = ref<"light" | "dark">("light");
-const role = ref<"ADMIN" | "USER" | "">("");
-const isAdmin = computed(() => role.value === "ADMIN");
 
 function applyTheme(next: "light" | "dark") {
   theme.value = next;
   document.documentElement.setAttribute("data-theme", next);
   localStorage.setItem("theme", next);
 }
-function toggleTheme() {
-  applyTheme(theme.value === "dark" ? "light" : "dark");
-}
 
 onMounted(() => {
   const savedTheme = (localStorage.getItem("theme") as "light" | "dark") || "light";
   applyTheme(savedTheme);
-  role.value = (localStorage.getItem("role") as "ADMIN" | "USER") || "";
 });
 
 const router = useRouter();
 
-function logout() {
-  sidebarOpen.value = false;
-  localStorage.removeItem("access_token");
-  localStorage.removeItem("role");
-  localStorage.removeItem("user_name");
-  localStorage.removeItem("user_email");
-  localStorage.removeItem("remember_me");
-  localStorage.removeItem("last_login_at");
-  router.push({ name: "login" }).catch(() => {});
+function goUpload() {
+  router.push({ name: "upload" }).catch(() => {});
 }
 
 type Tag = "legal" | "security" | "finance" | "policy" | "general";
@@ -366,11 +298,6 @@ function showToast(msg: string) {
   toast.value = msg;
   if (tt) window.clearTimeout(tt);
   tt = window.setTimeout(() => (toast.value = ""), 1800);
-}
-
-function go(name: string) {
-  sidebarOpen.value = false;
-  router.push({ name }).catch(() => {});
 }
 
 function docTitle(id: string) {
@@ -486,139 +413,6 @@ function exportMock() {
 </script>
 
 <style scoped>
-:global(:root) {
-  --b1: #1d4ed8;
-  --b2: #0ea5e9;
-  --ring: rgba(29, 78, 216, 0.18);
-}
-
-.app {
-  --ink: #111827;
-  --bg: #f4f6fb;
-  --line: #e5e7eb;
-  --card: #ffffff;
-  --card-solid: #ffffff;
-  --muted: #6b7280;
-
-  min-height: 100vh;
-  display: grid;
-  grid-template-columns: 280px 1fr;
-  font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, "Noto Sans KR", Arial;
-  color: var(--ink);
-  background: var(--bg);
-}
-
-/* Mobile overlay (default hidden) */
-.overlay {
-  display: none;
-}
-.hamburger {
-  display: none;
-}
-
-/* Sidebar */
-.sidebar {
-  background: rgba(255, 255, 255, 0.65);
-  border-right: 1px solid #e5e7eb;
-  backdrop-filter: blur(10px);
-  padding: 16px 14px;
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-.sb-brand {
-  display: flex;
-  align-items: center;
-  gap: 0;
-  padding: 10px 12px 12px;
-}
-.sb-logo {
-  width: 84px;
-  height: 84px;
-  border-radius: 22px;
-  display: grid;
-  place-items: center;
-  overflow: hidden;
-  margin-left: 0;
-}
-.sb-logo img {
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
-}
-.sb-search {
-  padding: 0 6px 6px;
-}
-.sb-input {
-  width: 100%;
-  border: 1px solid #e5e7eb;
-  border-radius: 12px;
-  padding: 10px 12px;
-  background: rgba(255, 255, 255, 0.7);
-  outline: none;
-  font-weight: 900;
-}
-.sb-input:focus {
-  box-shadow: 0 0 0 3px var(--ring);
-}
-.sb-nav {
-  display: grid;
-  gap: 6px;
-  padding: 0 6px;
-}
-.sb-item {
-  width: 100%;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 10px 12px;
-  border-radius: 14px;
-  border: 1px solid transparent;
-  background: transparent;
-  cursor: pointer;
-  color: inherit;
-  font-weight: 950;
-  text-align: left;
-}
-.sb-item:hover {
-  background: rgba(29, 78, 216, 0.08);
-  border-color: rgba(29, 78, 216, 0.14);
-}
-.sb-item.active {
-  background: rgba(29, 78, 216, 0.12);
-  border-color: rgba(29, 78, 216, 0.18);
-}
-.ico {
-  width: 18px;
-  display: grid;
-  place-items: center;
-}
-.txt {
-  font-size: 13px;
-}
-.sb-sep {
-  height: 1px;
-  background: #e5e7eb;
-  margin: 6px 0;
-}
-.sb-bottom {
-  margin-top: auto;
-  display: flex;
-  gap: 8px;
-  padding: 8px 6px 0;
-}
-.sb-logout {
-  width: 100%;
-  border-radius: 14px;
-  border: 1px solid #2563eb;
-  background: #2563eb;
-  color: #fff;
-  cursor: pointer;
-  font-weight: 900;
-  padding: 10px 12px;
-  text-align: center;
-}
-
 /* Main */
 .main {
   display: grid;
@@ -626,7 +420,7 @@ function exportMock() {
   min-width: 0;
 }
 
-/* Topbar */
+/* Header */
 .topbar {
   background: #fff;
   border-bottom: 1px solid #e5e7eb;
@@ -1016,43 +810,21 @@ function exportMock() {
   color: #065f46;
 }
 
-/* ✅ Sidebar hamburger (already) */
+.hamburger {
+  display: none;
+  font-size: 20px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  margin-right: 8px;
+}
+
+/* Responsive */
 @media (max-width: 820px) {
-  .app {
-    grid-template-columns: 1fr;
-  }
-  .overlay {
-    display: block;
-    position: fixed;
-    inset: 0;
-    background: rgba(0, 0, 0, 0.4);
-    z-index: 900;
-  }
-  .sidebar {
-    position: fixed;
-    top: 0;
-    left: 0;
-    height: 100vh;
-    width: 260px;
-    transform: translateX(-100%);
-    transition: transform 0.25s ease;
-    z-index: 1000;
-    background: #fff;
-  }
-  .sidebar.open {
-    transform: translateX(0);
-  }
   .hamburger {
     display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 20px;
-    background: transparent;
-    border: none;
-    cursor: pointer;
   }
-
-  /* ✅ topbar가 좁을 때 터지지 않게 */
   .topbar {
     padding: 10px 12px;
     align-items: flex-start;
@@ -1061,11 +833,10 @@ function exportMock() {
     align-items: center;
   }
   .tb-sub {
-    display: none; /* 모바일에서 부제 숨김(원하면 주석처리) */
+    display: none;
   }
 }
 
-/* ✅ Body(필터+리스트/상세) 모바일 대응 핵심 */
 @media (max-width: 980px) {
   .grid {
     grid-template-columns: 1fr;
@@ -1074,15 +845,14 @@ function exportMock() {
   .card.detail {
     height: auto;
     min-height: 0;
-    overflow: visible; /* ✅ 모바일에서 카드 잘림 방지 */
+    overflow: visible;
   }
   .term-list,
   .detail-body {
-    overflow: visible; /* ✅ 내부 스크롤 제거해서 자연 스크롤 */
+    overflow: visible;
   }
 }
 
-/* ✅ 더 작은 폰(<= 520px)에서 진짜 폼팩터 맞추기 */
 @media (max-width: 520px) {
   .content {
     padding: 12px 10px 24px;
@@ -1116,7 +886,7 @@ function exportMock() {
   }
 
   .term-item {
-    flex-direction: column; /* ✅ 한 줄에 못 담는 요소들 세로로 */
+    flex-direction: column;
     align-items: flex-start;
   }
   .term-right {
@@ -1125,11 +895,11 @@ function exportMock() {
   }
 
   .evid-item {
-    grid-template-columns: 34px 1fr; /* ✅ 좁은 화면에서 번호폭 축소 */
+    grid-template-columns: 34px 1fr;
   }
 
   .actions .btn {
-    width: 100%; /* ✅ 액션 버튼은 한 줄씩 */
+    width: 100%;
   }
   .pager {
     flex-direction: column;

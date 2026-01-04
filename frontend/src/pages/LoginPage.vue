@@ -17,8 +17,8 @@
         </div>
 
         <div class="left-center">
-          <div class="welcome">Join<br />DoQ</div>
-          <div class="left-sub">AI 문서 이해 보조를 시작해요</div>
+          <div class="welcome">Welcome<br />Back</div>
+          <div class="left-sub">AI 문서 이해 보조를 계속해요</div>
         </div>
 
         <div class="left-bottom">
@@ -28,31 +28,19 @@
 
       <!-- RIGHT -->
       <section class="right">
-        <h1 class="title">Signup</h1>
-        <p class="desc">이메일과 비밀번호로 계정을 생성하세요.</p>
+        <h1 class="title">Login</h1>
+        <p class="desc">이메일과 비밀번호로 로그인하세요.</p>
 
-        <form class="form" @submit.prevent="onSubmit">
-          <!-- ✅ 추가: 이름 -->
+        <form class="form" @submit.prevent="login">
+          <div v-if="errorMsg" class="error-msg">{{ errorMsg }}</div>
           <label class="field">
-            <span class="label">Name</span>
+            <span class="label">Email / ID</span>
             <input
               class="input"
               type="text"
-              placeholder="your name"
-              v-model="name"
-              autocomplete="name"
-              required
-            />
-          </label>
-
-          <label class="field">
-            <span class="label">Email</span>
-            <input
-              class="input"
-              type="email"
-              placeholder="you@example.com"
+              placeholder="admin or email"
               v-model="email"
-              autocomplete="email"
+              autocomplete="username"
               required
             />
           </label>
@@ -63,10 +51,9 @@
               <input
                 class="input"
                 :type="showPassword ? 'text' : 'password'"
-                placeholder="8+ characters"
+                placeholder="your password"
                 v-model="password"
-                autocomplete="new-password"
-                minlength="8"
+                autocomplete="current-password"
                 required
               />
               <button class="eye" type="button" @click="showPassword = !showPassword">
@@ -75,46 +62,15 @@
             </div>
           </label>
 
-          <label class="field">
-            <span class="label">Confirm Password</span>
-            <div class="pw-wrap">
-              <input
-                class="input"
-                :type="showConfirm ? 'text' : 'password'"
-                placeholder="repeat password"
-                v-model="confirm"
-                autocomplete="new-password"
-                minlength="8"
-                required
-              />
-              <button class="eye" type="button" @click="showConfirm = !showConfirm">
-                {{ showConfirm ? "Hide" : "Show" }}
-              </button>
-            </div>
-          </label>
-
-          <!-- ✅ 체크박스 토글 유지 + 이용약관 버튼 클릭은 체크에 영향 없게 -->
-          <label class="agree" for="agreeChk">
-            <input id="agreeChk" type="checkbox" v-model="agree" />
-            <span>
-              <button class="link inline" type="button" @click.stop.prevent="goTerms">
-                이용약관
-              </button>
-              및 개인정보 처리에 동의합니다
-            </span>
-          </label>
-
-          <!-- ✅ 확인버튼(=회원가입 제출 버튼) -->
-          <button class="btn" type="submit" :disabled="loading">
-            {{ loading ? "Creating..." : "확인" }}
+          <button class="btn" type="submit">
+            로그인
           </button>
 
-          <div v-if="error" class="error">{{ error }}</div>
-
-          <!-- ✅ 로그인 넘어가는 버튼 -->
           <div class="footer">
-            <span class="muted">Already a user?</span>
-            <button class="link strong" type="button" @click="goLogin">Login</button>
+            <button class="link" type="button" @click="goForgot">비밀번호 찾기</button>
+            <span class="muted">·</span>
+            <span class="muted">계정이 없으신가요?</span>
+            <button class="link strong" type="button" @click="goSignup">Signup</button>
           </div>
         </form>
       </section>
@@ -127,51 +83,47 @@
 <script setup lang="ts">
 import { ref } from "vue";
 import { useRouter } from "vue-router";
+import { useAuthStore } from "../stores/auth";
 
 const router = useRouter();
+const authStore = useAuthStore();
 
-const name = ref(""); // ✅ 추가
 const email = ref("");
 const password = ref("");
-const confirm = ref("");
-const agree = ref(true);
-
 const showPassword = ref(false);
-const showConfirm = ref(false);
-
 const loading = ref(false);
-const error = ref("");
+const errorMsg = ref("");
 
-function goHome() {
-  router.push({ name: "home" }).catch(() => {});
-}
-function goLogin() {
-  router.push({ name: "login" }).catch(() => {});
-}
-function goTerms() {
-  router.push({ name: "terms" }).catch(() => {});
-}
-
-async function onSubmit() {
-  error.value = "";
+/**
+ * ✅ 로그인 (Backend 연동)
+ */
+async function login() {
   loading.value = true;
-
+  errorMsg.value = "";
   try {
-    if (!name.value.trim()) throw new Error("이름을 입력해 주세요.");
-    if (!email.value.includes("@")) throw new Error("이메일 형식이 올바르지 않아요.");
-    if (password.value.length < 8) throw new Error("비밀번호는 8자 이상이어야 해요.");
-    if (password.value !== confirm.value) throw new Error("비밀번호가 서로 달라요.");
-    if (!agree.value) throw new Error("약관 동의가 필요해요.");
-
-    // TODO: FastAPI 연결
-    // POST /auth/signup { name, email, password }
-
-    router.push({ name: "login" }).catch(() => {});
-  } catch (e: any) {
-    error.value = e?.message ?? "회원가입에 실패했어요.";
+    await authStore.login(email.value, password.value);
+    router.push({ name: "home" });
+  } catch (error: any) {
+    if (error.response?.data?.detail) {
+      errorMsg.value = error.response.data.detail;
+    } else {
+      errorMsg.value = "로그인에 실패했습니다. 이메일과 비밀번호를 확인해주세요.";
+    }
   } finally {
     loading.value = false;
   }
+}
+
+function goSignup() {
+  router.push({ name: "signup" });
+}
+
+function goForgot() {
+  router.push({ name: "forgotPassword" });
+}
+
+function goHome() {
+  router.push({ name: "home" });
 }
 </script>
 
@@ -225,6 +177,8 @@ async function onSubmit() {
   color: #fff;
   padding: 26px 26px 18px;
   background: linear-gradient(135deg, rgba(29,78,216,0.95), rgba(14,165,233,0.90));
+  display: flex;
+  flex-direction: column;
 }
 .left::before {
   content: "";
@@ -241,8 +195,9 @@ async function onSubmit() {
 .logo {
   width: 34px; height: 34px; object-fit: contain; border-radius: 10px;
   filter: drop-shadow(0 10px 18px rgba(0,0,0,0.22));
+  cursor: pointer;
 }
-.left-center { margin-top: 68px; }
+.left-center { margin-top: 68px; flex: 1; }
 .welcome {
   font-weight: 1000;
   font-size: 56px;
@@ -275,6 +230,16 @@ async function onSubmit() {
 }
 .input:focus { border-color: rgba(29,78,216,0.35); box-shadow: 0 0 0 3px var(--ring); }
 
+.error-msg {
+  color: #ef4444;
+  font-size: 13px;
+  font-weight: 700;
+  text-align: center;
+  background: rgba(239, 68, 68, 0.1);
+  padding: 10px;
+  border-radius: 8px;
+}
+
 .pw-wrap { position: relative; }
 .pw-wrap .input { padding-right: 70px; }
 .eye {
@@ -294,23 +259,13 @@ async function onSubmit() {
 }
 .eye:hover { background: #f9fafb; }
 
-.agree {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 12px;
-  color: #374151;
-  font-weight: 800;
-}
-.agree input { width: 16px; height: 16px; accent-color: var(--b1); }
-
 .btn {
   margin-top: 6px;
   height: 46px;
   border: none;
   border-radius: 10px;
   font-weight: 1000;
-  color: #000;
+  color: #fff;
   cursor: pointer;
   background: linear-gradient(90deg, var(--b1), var(--b2));
   box-shadow: 0 14px 24px rgba(14,165,233,0.20);
@@ -329,21 +284,17 @@ async function onSubmit() {
   font-size: 12px;
 }
 .link:hover { background: rgba(29, 78, 216, 0.08); }
-.link.inline { padding: 0 4px; }
 .link.strong { padding: 0 6px; }
 
-.footer { margin-top: 10px; display: flex; gap: 6px; align-items: center; justify-content: center; }
-.muted { color: #9ca3af; font-weight: 800; font-size: 12px; }
-
-.error {
-  border: 1px solid #fecaca;
-  background: #fef2f2;
-  color: #991b1b;
-  border-radius: 12px;
-  padding: 10px 12px;
-  font-weight: 900;
-  font-size: 12px;
+.footer { 
+  margin-top: 10px; 
+  display: flex; 
+  gap: 6px; 
+  align-items: center; 
+  justify-content: center; 
+  flex-wrap: wrap;
 }
+.muted { color: #9ca3af; font-weight: 800; font-size: 12px; }
 
 @media (max-width: 900px) {
   .shell { grid-template-columns: 1fr; }

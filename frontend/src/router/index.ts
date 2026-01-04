@@ -12,6 +12,7 @@ import TermsPage from "@/pages/TermsPage.vue";
 import QaPage from "@/pages/QaPage.vue";
 import ProfilePage from "@/pages/ProfilePage.vue";
 import AdminPage from "@/pages/AdminPage.vue";
+import ChangePasswordPage from "@/pages/ChangePasswordPage.vue";
 
 type Role = "USER" | "ADMIN";
 
@@ -19,12 +20,15 @@ type Role = "USER" | "ADMIN";
  * 🔐 인증 정보 읽기 (데모 기준)
  */
 function getAuth() {
-  const token = localStorage.getItem("access_token");
-  const role = (localStorage.getItem("role") as Role | null) ?? "USER";
+  const token = localStorage.getItem("token");
+  // role이 없으면 빈 문자열 또는 null로 처리
+  // AdminPage 접근 시 requiresAdmin 체크에서 role === 'ADMIN'을 엄격하게 비교하므로
+  // role 저장 로직이 확실해야 함.
+  const role = localStorage.getItem("role") as Role | null;
 
   return {
     isAuthed: !!token,
-    role,
+    role: role || "USER", // 기본값 USER
   };
 }
 
@@ -38,6 +42,7 @@ const routes: RouteRecordRaw[] = [
   { path: "/docs/:id", name: "documentView", component: DocComparePage, meta: { requiresAuth: true } },
   { path: "/qa", name: "qa", component: QaPage, meta: { requiresAuth: true } },
   { path: "/profile", name: "profile", component: ProfilePage, meta: { requiresAuth: true } },
+  { path: "/profile/change-password", name: "changePassword", component: ChangePasswordPage, meta: { requiresAuth: true } },
 
   /* =======================
      관리자 전용

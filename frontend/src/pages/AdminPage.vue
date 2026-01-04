@@ -1,71 +1,28 @@
 ﻿<template>
-  <div class="app">
-    <div class="overlay" v-if="sidebarOpen" @click="sidebarOpen = false" />
-    <!-- Sidebar -->
-    <aside class="sidebar" :class="{ open: sidebarOpen }">
-      <div class="sb-brand">
-        <div class="sb-logo">
-          <img src="/logo.png" alt="DoQ" />
+  <AppLayout v-slot="{ toggleSidebar }">
+    <!-- Topbar -->
+    <header class="topbar">
+      <div class="tb-left">
+        <div class="tb-title">
+          <button class="hamburger" @click="toggleSidebar" aria-label="Open menu">☰</button>
+          <span class="tb-title-strong">관리자</span>
+          <span class="tb-sub">· 운영 현황 & 관리</span>
+        </div>
+
+        <div class="tb-meta">
+          <span class="pill">상태: 정상</span>
+          <span class="muted">·</span>
+          <span class="muted">데이터</span>
         </div>
       </div>
 
-      <div class="sb-search">
-        <input class="sb-input" placeholder="Search" v-model="sidebarQ" />
+      <div class="tb-right">
+        <button class="btn btn-outline" type="button" @click="refreshMock">새로고침</button>
       </div>
+    </header>
 
-      <nav class="sb-nav">
-        <button class="sb-item" @click="go('home')">
-          <span class="ico">🏠</span><span class="txt">홈</span>
-        </button>
-        <div class="sb-sep"></div>
-        <button class="sb-item" :class="{ active: tab === 'dashboard' }" @click="setTab('dashboard')">
-          <span class="ico">📊</span><span class="txt">대시보드</span>
-        </button>
-        <button class="sb-item" :class="{ active: tab === 'users' }" @click="setTab('users')">
-          <span class="ico">👥</span><span class="txt">사용자</span>
-        </button>
-        <button class="sb-item" :class="{ active: tab === 'docs' }" @click="setTab('docs')">
-          <span class="ico">📄</span><span class="txt">문서 관리</span>
-        </button>
-        <button class="sb-item" :class="{ active: tab === 'tickets' }" @click="setTab('tickets')">
-          <span class="ico">🧾</span><span class="txt">문의/신고</span>
-        </button>
-        <button class="sb-item" :class="{ active: tab === 'access' }" @click="setTab('access')">
-          <span class="ico">🛡️</span><span class="txt">권한/접근</span>
-        </button>
-        <button class="sb-item" :class="{ active: tab === 'logs' }" @click="setTab('logs')">
-          <span class="ico">🧰</span><span class="txt">로그/통계</span>
-        </button>
-        <button class="sb-item" :class="{ active: tab === 'settings' }" @click="setTab('settings')">
-          <span class="ico">⚙️</span><span class="txt">설정</span>
-        </button>
-      </nav>
-
-    </aside>
-
-    <!-- Main -->
-    <div class="main">
-      <!-- Topbar -->
-      <header class="topbar">
-        <div class="tb-left">
-          <div class="tb-title">
-            <button class="hamburger" @click="sidebarOpen = true" aria-label="Open menu">☰</button>
-            <span class="tb-title-strong">관리자</span>
-            <span class="tb-sub">· 운영 현황 & 관리</span>
-          </div>
-
-          <div class="tb-meta">
-            <span class="pill">상태: 정상</span>
-            <span class="muted">·</span>
-            <span class="muted">데이터</span>
-          </div>
-        </div>
-
-        <div class="tb-right">
-          <button class="btn btn-outline" type="button" @click="refreshMock">새로고침</button>
-        </div>
-      </header>
-
+    <!-- Main Page Content (Tabs + Sections) -->
+    <div class="page-content">
       <!-- Tabs -->
       <section class="tabs-bar">
         <div class="tabs">
@@ -81,14 +38,13 @@
 
       <!-- Content -->
       <main class="content">
-
         <!-- DASHBOARD -->
         <section v-if="tab === 'dashboard'" class="grid dash-grid">
+          <!-- ... (dashboard content) ... -->
           <article class="card">
             <div class="card-head">
               <h2>오늘의 요약</h2>
             </div>
-
             <div class="stat-grid">
               <div class="stat">
                 <div class="stat-label">총 사용자</div>
@@ -107,7 +63,6 @@
                 <div class="stat-value">{{ stats.qaToday }}</div>
               </div>
             </div>
-
             <div class="hint muted">
               (연동 포인트) FastAPI: <b>GET /admin/metrics</b> 로 교체 예정
             </div>
@@ -117,7 +72,6 @@
             <div class="card-head">
               <h2>시스템 상태</h2>
             </div>
-
             <div class="health">
               <div class="health-row">
                 <div class="k">API</div>
@@ -136,7 +90,6 @@
                 <div class="v ok">OK</div>
               </div>
             </div>
-
             <div class="actions">
               <button class="btn btn-outline" type="button" @click="openLogs">에러 로그 보기</button>
               <button class="btn btn-primary" type="button" @click="restartMock">워커 재시작</button>
@@ -150,7 +103,6 @@
                 <button class="btn btn-outline btn-sm" @click="tab = 'docs'">문서 관리로 →</button>
               </div>
             </div>
-
             <div class="table">
               <div class="thead">
                 <div class="th">작업 ID</div>
@@ -160,7 +112,6 @@
                 <div class="th">생성</div>
                 <div class="th">작업</div>
               </div>
-
               <div v-for="j in jobs" :key="j.id" class="trow">
                 <div class="td mono">{{ j.id }}</div>
                 <div class="td">
@@ -193,7 +144,6 @@
                 <button class="btn btn-outline btn-sm" @click="createUserMock">+ 사용자 추가</button>
               </div>
             </div>
-
             <div class="table">
               <div class="thead users">
                 <div class="th">ID</div>
@@ -203,24 +153,23 @@
                 <div class="th">가입</div>
                 <div class="th">작업</div>
               </div>
-
               <div v-for="u in filteredUsers" :key="u.id" class="trow users">
-                <div class="td mono">{{ u.id }}</div>
+                <div class="td mono">{{ u.id.slice(0, 8) }}</div>
                 <div class="td">
                   <div class="strong">{{ u.email }}</div>
                   <div class="muted small">{{ u.name }}</div>
                 </div>
                 <div class="td">
-                  <span class="chip" :class="{ admin: u.role === 'admin' }">{{ u.role }}</span>
+                  <span class="chip" :class="{ admin: u.role === 'ADMIN' }">{{ u.role }}</span>
                 </div>
                 <div class="td">
-                  <span :class="['badge', u.active ? 'ok' : 'bad']">{{ u.active ? "활성" : "정지" }}</span>
+                  <span :class="['badge', u.is_active ? 'ok' : 'bad']">{{ u.is_active ? "활성" : "정지" }}</span>
                 </div>
-                <div class="td muted">{{ fmt(u.joinedAt) }}</div>
+                <div class="td muted">{{ fmt(u.created_at) }}</div>
                 <div class="td">
                   <button class="btn btn-sm" @click="toggleRoleMock(u)">권한변경</button>
                   <button class="btn btn-sm btn-outline" @click="toggleActiveMock(u)">
-                    {{ u.active ? "정지" : "활성" }}
+                    {{ u.is_active ? "정지" : "활성" }}
                   </button>
                 </div>
               </div>
@@ -243,7 +192,6 @@
                 <button class="btn btn-outline btn-sm" @click="requeueMock">실패 재시도</button>
               </div>
             </div>
-
             <div class="table">
               <div class="thead docs">
                 <div class="th">문서 ID</div>
@@ -253,20 +201,19 @@
                 <div class="th">업로드</div>
                 <div class="th">작업</div>
               </div>
-
               <div v-for="d in filteredDocs" :key="d.id" class="trow docs">
-                <div class="td mono">{{ d.id }}</div>
+                <div class="td mono">{{ d.id.slice(0, 8) }}</div>
                 <div class="td">
                   <div class="strong">{{ d.title }}</div>
-                  <div class="muted small">{{ d.type }}</div>
+                  <div class="muted small">{{ d.file_type }}</div>
                 </div>
-                <div class="td">{{ d.user }}</div>
+                <div class="td">{{ d.user_id.slice(0, 8) }}</div>
                 <div class="td">
                   <span :class="['badge', docBadge(d.status)]">{{ docLabel(d.status) }}</span>
                 </div>
-                <div class="td muted">{{ fmt(d.createdAt) }}</div>
+                <div class="td muted">{{ fmt(d.created_at) }}</div>
                 <div class="td">
-                  <button class="btn btn-sm" @click="openDoc(d.id)" :disabled="d.status !== 'done'">열기</button>
+                  <button class="btn btn-sm" @click="openDoc(d.id)" :disabled="d.status !== 'DONE'">열기</button>
                   <button class="btn btn-sm btn-outline" @click="deleteDocMock(d)">삭제</button>
                 </div>
               </div>
@@ -289,7 +236,6 @@
                 <button class="btn btn-outline btn-sm" @click="bulkResolveMock">일괄 처리</button>
               </div>
             </div>
-
             <div class="table">
               <div class="thead tickets">
                 <div class="th">ID</div>
@@ -299,7 +245,6 @@
                 <div class="th">상태</div>
                 <div class="th">작업</div>
               </div>
-
               <div v-for="t in filteredTickets" :key="t.id" class="trow tickets">
                 <div class="td mono">{{ t.id }}</div>
                 <div class="td">
@@ -331,7 +276,6 @@
                 <button class="btn btn-outline btn-sm" @click="createRoleMock">+ 역할 추가</button>
               </div>
             </div>
-
             <div class="table">
               <div class="thead roles">
                 <div class="th">ID</div>
@@ -340,7 +284,6 @@
                 <div class="th">업데이트</div>
                 <div class="th">작업</div>
               </div>
-
               <div v-for="r in roles" :key="r.id" class="trow roles">
                 <div class="td mono">{{ r.id }}</div>
                 <div class="td">
@@ -364,7 +307,6 @@
                 <button class="btn btn-outline btn-sm" @click="syncPolicyMock">동기화</button>
               </div>
             </div>
-
             <div class="table">
               <div class="thead policies">
                 <div class="th">ID</div>
@@ -373,7 +315,6 @@
                 <div class="th">보안 등급</div>
                 <div class="th">상태</div>
               </div>
-
               <div v-for="p in policies" :key="p.id" class="trow policies">
                 <div class="td mono">{{ p.id }}</div>
                 <div class="td">
@@ -401,7 +342,6 @@
                 <button class="btn btn-outline btn-sm" @click="generateLogMock">샘플 로그 생성</button>
               </div>
             </div>
-
             <div class="stat-grid stats-compact">
               <div class="stat">
                 <div class="stat-label">총 로그</div>
@@ -420,7 +360,6 @@
                 <div class="stat-value">{{ logStats.today }}</div>
               </div>
             </div>
-
             <div class="logs">
               <div v-for="l in logs" :key="l.id" class="log">
                 <span :class="['lvl', l.level]">{{ l.level.toUpperCase() }}</span>
@@ -437,7 +376,6 @@
             <div class="card-head">
               <h2>설정</h2>
             </div>
-
             <div class="settings">
               <div class="set-row">
                 <div>
@@ -446,7 +384,6 @@
                 </div>
                 <input class="input small-input" type="number" v-model.number="settings.workerConcurrency" min="1" max="64" />
               </div>
-
               <div class="set-row">
                 <div>
                   <div class="strong">Q&A 최대 컨텍스트 문단 수</div>
@@ -454,7 +391,6 @@
                 </div>
                 <input class="input small-input" type="number" v-model.number="settings.maxEvidence" min="1" max="20" />
               </div>
-
               <div class="set-row">
                 <div>
                   <div class="strong">파일 최대 업로드(MB)</div>
@@ -462,7 +398,6 @@
                 </div>
                 <input class="input small-input" type="number" v-model.number="settings.maxUploadMb" min="1" max="500" />
               </div>
-
               <div class="actions">
                 <button class="btn btn-primary" @click="saveSettingsMock">저장</button>
                 <button class="btn btn-outline" @click="resetSettingsMock">초기화</button>
@@ -474,20 +409,95 @@
         <div v-if="toast" class="toast">{{ toast }}</div>
       </main>
     </div>
-  </div>
+  </AppLayout>
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from "vue";
+import { computed, ref, onMounted, watch } from "vue";
 import { useRouter } from "vue-router";
+import AppLayout from "../components/layout/AppLayout.vue";
+import adminService, { UserItem, DocItem } from "../api/admin.service";
 
 const router = useRouter();
+const theme = ref<"light" | "dark">("light");
 
-const sidebarQ = ref("");
-const sidebarOpen = ref(false);
+function applyTheme(next: "light" | "dark") {
+  theme.value = next;
+  document.documentElement.setAttribute("data-theme", next);
+  localStorage.setItem("theme", next);
+}
+
+onMounted(async () => {
+  const savedTheme = (localStorage.getItem("theme") as "light" | "dark") || "light";
+  applyTheme(savedTheme);
+  await loadMetrics();
+});
+
+async function loadMetrics() {
+  try {
+    const res = await adminService.getMetrics();
+    stats.value = res.data;
+  } catch (e) {
+    console.error("Failed to load metrics", e);
+    showToast("지표 로딩 실패");
+  }
+}
+
+/* ---- Dashboard data (demo -> real) ---- */
+const stats = ref({
+  users: 0,
+  docs: 0,
+  queue: 0,
+  qaToday: 0,
+});
 
 type Tab = "dashboard" | "users" | "docs" | "tickets" | "access" | "logs" | "settings";
 const tab = ref<Tab>("dashboard");
+
+watch(tab, async (newTab) => {
+  if (newTab === 'users') {
+    await loadUsers();
+  } else if (newTab === 'docs') {
+    await loadDocs();
+  }
+});
+
+/* ---- Users ---- */
+const users = ref<UserItem[]>([]);
+const userQ = ref("");
+
+async function loadUsers() {
+  try {
+    const res = await adminService.getUsers();
+    users.value = res.data;
+  } catch (e) {
+    showToast("사용자 목록 로딩 실패");
+  }
+}
+
+const filteredUsers = computed(() => {
+  const q = userQ.value.trim().toLowerCase();
+  if (!q) return users.value;
+  return users.value.filter((u) => u.email.toLowerCase().includes(q) || u.name.toLowerCase().includes(q));
+});
+
+/* ---- Docs ---- */
+const docs = ref<DocItem[]>([]);
+const docStatus = ref<"all" | string>("all");
+
+async function loadDocs() {
+  try {
+    const res = await adminService.getDocuments();
+    docs.value = res.data;
+  } catch (e) {
+    showToast("문서 목록 로딩 실패");
+  }
+}
+
+const filteredDocs = computed(() => {
+  if (docStatus.value === "all") return docs.value;
+  return docs.value.filter((d) => d.status === docStatus.value);
+});
 
 const toast = ref("");
 let timer: number | undefined;
@@ -497,14 +507,6 @@ function showToast(msg: string) {
   timer = window.setTimeout(() => (toast.value = ""), 1400);
 }
 
-function go(name: string) {
-  sidebarOpen.value = false;
-  router.push({ name }).catch(() => {});
-}
-function setTab(next: Tab) {
-  tab.value = next;
-  sidebarOpen.value = false;
-}
 function openDoc(id: string) {
   router.push({ name: "documentView", params: { id } }).catch(() => {});
 }
@@ -517,14 +519,6 @@ function fmt(iso: string) {
   const d = new Date(iso);
   return d.toLocaleString("ko-KR", { month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit" });
 }
-
-/* ---- Dashboard data (demo) ---- */
-const stats = ref({
-  users: 128,
-  docs: 943,
-  queue: 7,
-  qaToday: 41,
-});
 
 type JobStatus = "queued" | "running" | "done" | "failed";
 interface JobItem {
@@ -562,6 +556,7 @@ function cancelMock(j: JobItem) {
 }
 
 /* ---- Users (demo) ---- */
+/*
 type Role = "user" | "admin";
 interface UserItem {
   id: string;
@@ -584,20 +579,22 @@ const filteredUsers = computed(() => {
   if (!q) return users.value;
   return users.value.filter((u) => u.email.toLowerCase().includes(q) || u.name.toLowerCase().includes(q));
 });
+*/
 
 function toggleRoleMock(u: UserItem) {
-  users.value = users.value.map((x) => (x.id === u.id ? { ...x, role: x.role === "admin" ? "user" : "admin" } : x));
-  showToast("권한 변경");
+  // users.value = users.value.map((x) => (x.id === u.id ? { ...x, role: x.role === "admin" ? "user" : "admin" } : x));
+  showToast("권한 변경 (API 연동 필요)");
 }
 function toggleActiveMock(u: UserItem) {
-  users.value = users.value.map((x) => (x.id === u.id ? { ...x, active: !x.active } : x));
-  showToast("활성/정지 변경");
+  // users.value = users.value.map((x) => (x.id === u.id ? { ...x, active: !x.active } : x));
+  showToast("활성/정지 변경 (API 연동 필요)");
 }
 function createUserMock() {
   showToast("사용자 추가");
 }
 
 /* ---- Docs (demo) ---- */
+/*
 type DocStatus = "done" | "processing" | "failed";
 interface DocItem {
   id: string;
@@ -618,22 +615,24 @@ const filteredDocs = computed(() => {
   if (docStatus.value === "all") return docs.value;
   return docs.value.filter((d) => d.status === docStatus.value);
 });
+*/
 
-function docBadge(s: DocStatus) {
-  if (s === "done") return "ok";
-  if (s === "processing") return "warn";
+function docBadge(s: string) {
+  if (s === "DONE") return "ok";
+  if (s === "PROCESSING" || s === "QUEUED") return "warn";
   return "bad";
 }
-function docLabel(s: DocStatus) {
-  if (s === "done") return "완료";
-  if (s === "processing") return "처리중";
+function docLabel(s: string) {
+  if (s === "DONE") return "완료";
+  if (s === "PROCESSING") return "처리중";
+  if (s === "QUEUED") return "대기";
   return "실패";
 }
 function deleteDocMock(d: DocItem) {
   const ok = confirm(`삭제할까요?\n${d.id} - ${d.title}`);
   if (!ok) return;
-  docs.value = docs.value.filter((x) => x.id !== d.id);
-  showToast("삭제");
+  // docs.value = docs.value.filter((x) => x.id !== d.id);
+  showToast("삭제 (API 연동 필요)");
 }
 function requeueMock() {
   showToast("재시도: 실패 문서 재처리 요청 예정");
@@ -793,163 +792,18 @@ function resetSettingsMock() {
 function refreshMock() {
   showToast("새로고침");
 }
-function deployMock() {
-  showToast("배포/점검");
-}
 function restartMock() {
   showToast("워커 재시작");
 }
 </script>
 
 <style scoped>
-:global(:root) {
-  --b1: #1d4ed8;
-  --b2: #0ea5e9;
-  --ring: rgba(29, 78, 216, 0.18);
-}
-
-.app {  --ink: #111827;
-  --bg: #f4f6fb;
-  --line: #e5e7eb;
-  --card: #ffffff;
-  --card-solid: #ffffff;
-  --muted: #6b7280;
-
-  min-height: 100vh;
-  background: var(--bg);
-  color: var(--ink);
-  font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, "Noto Sans KR", Arial;
-  display: grid;
-  grid-template-columns: 280px 1fr;
-}
-/* ? Mobile overlay (default hidden) */
-.overlay {
-  display: none;
-}
-.hamburger {
-  display: none;
-}
-/* Sidebar */
-.sidebar {
-  background: rgba(255, 255, 255, 0.65);
-  border-right: 1px solid #e5e7eb;
-  backdrop-filter: blur(10px);
-  padding: 16px 14px;
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-.sb-brand {
-  display: flex;
-  align-items: center;
-  gap: 0;
-  padding: 10px 12px 12px;
-}
-.sb-logo {
-  width: 84px;
-  height: 84px;
-  border-radius: 22px;
-  display: grid;
-  place-items: center;
-  overflow: hidden;
-  margin-left: 0;
-}
-.sb-logo img {
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
-}
-.sb-name {
-  font-weight: 1000;
-  letter-spacing: -0.2px;
-}
-
-.sb-search {
-  padding: 0 6px 6px;
-}
-.sb-input {
-  width: 100%;
-  border: 1px solid #e5e7eb;
-  border-radius: 12px;
-  padding: 10px 12px;
-  background: rgba(255, 255, 255, 0.7);
-  outline: none;
-  font-weight: 900;
-}
-.sb-input:focus {
-  box-shadow: 0 0 0 3px var(--ring);
-}
-
-.sb-nav {
-  display: grid;
-  gap: 6px;
-  padding: 0 6px;
-}
-.sb-item {
-  width: 100%;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 10px 12px;
-  border-radius: 14px;
-  border: 1px solid transparent;
-  background: transparent;
-  cursor: pointer;
-  color: inherit;
-  font-weight: 950;
-  text-align: left;
-}
-.sb-item:hover {
-  background: rgba(29, 78, 216, 0.08);
-  border-color: rgba(29, 78, 216, 0.14);
-}
-.sb-item.active {
-  background: rgba(29, 78, 216, 0.12);
-  border-color: rgba(29, 78, 216, 0.18);
-}
-.ico {
-  width: 18px;
-  display: grid;
-  place-items: center;
-}
-.txt {
-  font-size: 13px;
-}
-.sb-sep {
-  height: 1px;
-  background: #e5e7eb;
-  margin: 6px 0;
-}
-.sb-bottom {
-  margin-top: auto;
-  display: flex;
-  gap: 8px;
-  padding: 8px 6px 0;
-}
-
-  .sb-logout {
-    width: 100%;
-    border-radius: 14px;
-    border: 1px solid #2563eb;
-    background: #2563eb;
-    color: #fff;
-    cursor: pointer;
-    font-weight: 900;
-    padding: 10px 12px;
-    text-align: center;
-  }
-.sb-mini {
-  width: 40px;
-  height: 40px;
-  border-radius: 14px;
-  border: 1px solid #e5e7eb;
-  background: rgba(255, 255, 255, 0.7);
-  cursor: pointer;
-  font-size: 16px;
-}
-
 /* Main */
-.main { display: grid; grid-template-rows: 76px 56px 1fr; }
+.main {
+  display: grid;
+  grid-template-rows: auto 56px 1fr;
+  min-width: 0;
+}
 
 /* Topbar */
 .topbar {
@@ -960,9 +814,7 @@ function restartMock() {
   justify-content: space-between;
   padding: 0 18px;
   gap: 12px;
-  position: sticky;
-  top: 0;
-  z-index: 10;
+  /* Topbar height in grid is auto or fixed, but let's stick to flex layout for content */
   height: 76px;
 }
 .tb-left { display: grid; gap: 6px; }
@@ -993,10 +845,18 @@ function restartMock() {
   justify-items: stretch;
 }
 
+.page-content {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  height: 100%; /* Fill available space in AppLayout main grid */
+  overflow: auto; /* Let this container scroll if needed, though usually main scrolls */
+}
+
 /* Tabs */
 .tabs-bar {
   position: sticky;
-  top: 76px;
+  top: 0;
   z-index: 9;
   background: #f4f6fb;
   border-bottom: 1px solid #e5e7eb;
@@ -1022,6 +882,7 @@ function restartMock() {
   font-weight: 1000;
   cursor: pointer;
   font-size: 13px;
+  flex: 0 0 auto;
 }
 .tab.on {
   border-color: #bfdbfe;
@@ -1047,6 +908,7 @@ function restartMock() {
   border: 1px solid #e5e7eb;
   border-radius: 18px;
   padding: 16px;
+  min-width: 0;
 }
 .span2 { grid-column: 1 / -1; }
 .card-head {
@@ -1097,12 +959,13 @@ function restartMock() {
 .actions { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 12px; }
 
 /* Tables */
-.table { width: 100%; }
+.table { width: 100%; overflow-x: auto; }
 .thead, .trow {
   display: grid;
   grid-template-columns: 140px 1fr 180px 120px 140px 220px;
   gap: 10px;
   align-items: center;
+  min-width: 800px; /* Ensure table doesn't squish too much */
 }
 .thead {
   padding: 10px 10px;
@@ -1245,67 +1108,23 @@ function restartMock() {
   color: #1d4ed8;
 }
 
+.hamburger {
+  display: none;
+  font-size: 20px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  margin-right: 8px;
+}
+
 @media (max-width: 980px) {
   .grid { grid-template-columns: 1fr; }
-  .thead, .trow { grid-template-columns: 120px 1fr 160px 110px 120px 200px; }
-  .thead.users, .trow.users { grid-template-columns: 110px 1fr 110px 110px 120px 200px; }
   .stats-compact { grid-template-columns: repeat(2, 1fr); }
 }
 @media (max-width: 820px) {
-  .app {
-    grid-template-columns: 1fr;
-  }
-  .overlay {
-    display: block;
-    position: fixed;
-    inset: 0;
-    background: rgba(0, 0, 0, 0.4);
-    z-index: 900;
-  }
-  .sidebar {
-    position: fixed;
-    top: 0;
-    left: 0;
-    height: 100vh;
-    width: 260px;
-    transform: translateX(-100%);
-    transition: transform 0.25s ease;
-    z-index: 1000;
-    background: #fff;
-  }
-  .sidebar.open {
-    transform: translateX(0);
-  }
   .hamburger {
     display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 20px;
-    background: transparent;
-    border: none;
-    cursor: pointer;
-  }
-}
-@media (max-width: 720px) {
-  .thead { display: none; }
-  .trow, .trow.users, .trow.docs, .trow.tickets, .trow.roles, .trow.policies {
-    grid-template-columns: 1fr;
-    gap: 8px;
   }
 }
 </style>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

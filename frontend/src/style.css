@@ -1,0 +1,69 @@
+﻿:root {
+  --primary-color: #6366f1;
+  --secondary-color: #8b5cf6;
+  --success-color: #10b981;
+  --warning-color: #f59e0b;
+  --danger-color: #ef4444;
+  --bg-color: #f9fafb;
+  --card-bg: #ffffff;
+  --text-primary: #111827;
+  --text-secondary: #6b7280;
+  --border-color: #e5e7eb;
+  --shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+
+  /* Common App Theme Variables */
+  --ink: #111827;
+  --bg: #f4f6fb;
+  --line: #e5e7eb;
+  --card: #ffffff;
+  --card-solid: #ffffff;
+  --muted: #6b7280;
+  
+  --sidebar-bg: rgba(255, 255, 255, 0.65);
+  --topbar-bg: #ffffff;
+}
+
+[data-theme="dark"] {
+  --primary-color: #818cf8;
+  --secondary-color: #a78bfa;
+  --bg-color: #111827;
+  --card-bg: #1f2937;
+  --text-primary: #f9fafb;
+  --text-secondary: #9ca3af;
+  --border-color: #374151;
+  --shadow: 0 1px 3px 0 rgb(0 0 0 / 0.5), 0 1px 2px -1px rgb(0 0 0 / 0.5);
+  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.5), 0 4px 6px -4px rgb(0 0 0 / 0.5);
+
+  /* Common App Theme Variables - Dark Mode */
+  --ink: #f9fafb;
+  --bg: #111827;
+  --line: #374151;
+  --card: #1f2937;
+  --card-solid: #1f2937;
+  --muted: #9ca3af;
+
+  --sidebar-bg: rgba(31, 41, 55, 0.85);
+  --topbar-bg: #1f2937;
+}
+
+/* Font Size Scaling */
+:root {
+  --base-font-size: 16px;
+}
+:root[data-size="sm"] {
+  --base-font-size: 14px;
+}
+:root[data-size="md"] {
+  --base-font-size: 16px;
+}
+:root[data-size="lg"] {
+  --base-font-size: 18px;
+}
+
+body {
+  margin: 0;
+  background-color: var(--bg-color);
+  color: var(--text-primary);
+  font-size: var(--base-font-size);
+}

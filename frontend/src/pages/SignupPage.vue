@@ -17,8 +17,8 @@
         </div>
 
         <div class="left-center">
-          <div class="welcome">Welcome<br />Back</div>
-          <div class="left-sub">AI 문서 이해 보조를 계속해요</div>
+          <div class="welcome">Join<br />DoQ</div>
+          <div class="left-sub">AI 문서 이해 보조를 시작해요</div>
         </div>
 
         <div class="left-bottom">
@@ -28,10 +28,23 @@
 
       <!-- RIGHT -->
       <section class="right">
-        <h1 class="title">Login</h1>
-        <p class="desc">이메일과 비밀번호로 로그인하세요.</p>
+        <h1 class="title">Signup</h1>
+        <p class="desc">이메일과 비밀번호로 계정을 생성하세요.</p>
 
-        <form class="form" @submit.prevent="login">
+        <form class="form" @submit.prevent="onSubmit">
+          <!-- ✅ 추가: 이름 -->
+          <label class="field">
+            <span class="label">Name</span>
+            <input
+              class="input"
+              type="text"
+              placeholder="your name"
+              v-model="name"
+              autocomplete="name"
+              required
+            />
+          </label>
+
           <label class="field">
             <span class="label">Email</span>
             <input
@@ -50,9 +63,10 @@
               <input
                 class="input"
                 :type="showPassword ? 'text' : 'password'"
-                placeholder="your password"
+                placeholder="8+ characters"
                 v-model="password"
-                autocomplete="current-password"
+                autocomplete="new-password"
+                minlength="8"
                 required
               />
               <button class="eye" type="button" @click="showPassword = !showPassword">
@@ -61,15 +75,46 @@
             </div>
           </label>
 
-          <button class="btn" type="submit">
-            로그인
+          <label class="field">
+            <span class="label">Confirm Password</span>
+            <div class="pw-wrap">
+              <input
+                class="input"
+                :type="showConfirm ? 'text' : 'password'"
+                placeholder="repeat password"
+                v-model="confirm"
+                autocomplete="new-password"
+                minlength="8"
+                required
+              />
+              <button class="eye" type="button" @click="showConfirm = !showConfirm">
+                {{ showConfirm ? "Hide" : "Show" }}
+              </button>
+            </div>
+          </label>
+
+          <!-- ✅ 체크박스 토글 유지 + 이용약관 버튼 클릭은 체크에 영향 없게 -->
+          <label class="agree" for="agreeChk">
+            <input id="agreeChk" type="checkbox" v-model="agree" />
+            <span>
+              <button class="link inline" type="button" @click.stop.prevent="goTerms">
+                이용약관
+              </button>
+              및 개인정보 처리에 동의합니다
+            </span>
+          </label>
+
+          <!-- ✅ 확인버튼(=회원가입 제출 버튼) -->
+          <button class="btn" type="submit" :disabled="loading">
+            {{ loading ? "Creating..." : "확인" }}
           </button>
 
+          <div v-if="error" class="error">{{ error }}</div>
+
+          <!-- ✅ 로그인 넘어가는 버튼 -->
           <div class="footer">
-            <button class="link" type="button" @click="goForgot">비밀번호 찾기</button>
-            <span class="muted">·</span>
-            <span class="muted">계정이 없으신가요?</span>
-            <button class="link strong" type="button" @click="goSignup">Signup</button>
+            <span class="muted">Already a user?</span>
+            <button class="link strong" type="button" @click="goLogin">Login</button>
           </div>
         </form>
       </section>
@@ -82,56 +127,61 @@
 <script setup lang="ts">
 import { ref } from "vue";
 import { useRouter } from "vue-router";
+import { useAuthStore } from "../stores/auth";
 
 const router = useRouter();
+const authStore = useAuthStore();
 
+const name = ref(""); // ✅ 추가
 const email = ref("");
 const password = ref("");
+const confirm = ref("");
+const agree = ref(true);
+
 const showPassword = ref(false);
+const showConfirm = ref(false);
 
-/**
- * ✅ 관리자 이메일 목록
- * → 이 이메일로 로그인하면 ADMIN 권한
- */
-const ADMIN_EMAILS = [
-  "abcd63980041@gmail.com",
-  "jyerin0426@gmail.com",
-  "abc0041d@gmail.com",
-];
-
-/**
- * ✅ 로그인 ()
- */
-function login() {
-  // 토큰 저장
-  localStorage.setItem("access_token", "demo-token");
-
-  // 사용자 정보 저장
-  localStorage.setItem("user_email", email.value);
-  localStorage.setItem("user_name", email.value.split("@")[0]);
-  localStorage.setItem("last_login_at", new Date().toISOString());
-
-  // 관리자 판별
-  if (ADMIN_EMAILS.includes(email.value)) {
-    localStorage.setItem("role", "ADMIN");
-  } else {
-    localStorage.setItem("role", "USER");
-  }
-
-  // 홈으로 이동
-  router.push({ name: "home" });
-}
-
-function goSignup() {
-  router.push({ name: "signup" });
-}
-
-function goForgot() {
-  router.push({ name: "forgotPassword" });
-}
+const loading = ref(false);
+const error = ref("");
 
 function goHome() {
-  router.push({ name: "home" });
+  router.push({ name: "home" }).catch(() => {});
+}
+function goLogin() {
+  router.push({ name: "login" }).catch(() => {});
+}
+function goTerms() {
+  router.push({ name: "terms" }).catch(() => {});
+}
+
+async function onSubmit() {
+  error.value = "";
+  loading.value = true;
+
+  try {
+    if (!name.value.trim()) throw new Error("이름을 입력해 주세요.");
+    if (!email.value.includes("@")) throw new Error("이메일 형식이 올바르지 않아요.");
+    if (password.value.length < 8) throw new Error("비밀번호는 8자 이상이어야 해요.");
+    if (password.value !== confirm.value) throw new Error("비밀번호가 서로 달라요.");
+    if (!agree.value) throw new Error("약관 동의가 필요해요.");
+
+    // FastAPI 연결
+    await authStore.signup({
+      email: email.value,
+      password: password.value,
+      name: name.value
+    });
+
+    router.push({ name: "login" }).catch(() => {});
+  } catch (e: any) {
+    if (e.response?.data?.detail) {
+      error.value = e.response.data.detail;
+    } else {
+      error.value = e?.message ?? "회원가입에 실패했어요.";
+    }
+  } finally {
+    loading.value = false;
+  }
 }
 </script>
 
@@ -185,8 +235,6 @@ function goHome() {
   color: #fff;
   padding: 26px 26px 18px;
   background: linear-gradient(135deg, rgba(29,78,216,0.95), rgba(14,165,233,0.90));
-  display: flex;
-  flex-direction: column;
 }
 .left::before {
   content: "";
@@ -203,9 +251,8 @@ function goHome() {
 .logo {
   width: 34px; height: 34px; object-fit: contain; border-radius: 10px;
   filter: drop-shadow(0 10px 18px rgba(0,0,0,0.22));
-  cursor: pointer;
 }
-.left-center { margin-top: 68px; flex: 1; }
+.left-center { margin-top: 68px; }
 .welcome {
   font-weight: 1000;
   font-size: 56px;
@@ -257,13 +304,23 @@ function goHome() {
 }
 .eye:hover { background: #f9fafb; }
 
+.agree {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  color: #374151;
+  font-weight: 800;
+}
+.agree input { width: 16px; height: 16px; accent-color: var(--b1); }
+
 .btn {
   margin-top: 6px;
   height: 46px;
   border: none;
   border-radius: 10px;
   font-weight: 1000;
-  color: #fff;
+  color: #000;
   cursor: pointer;
   background: linear-gradient(90deg, var(--b1), var(--b2));
   box-shadow: 0 14px 24px rgba(14,165,233,0.20);
@@ -282,17 +339,21 @@ function goHome() {
   font-size: 12px;
 }
 .link:hover { background: rgba(29, 78, 216, 0.08); }
+.link.inline { padding: 0 4px; }
 .link.strong { padding: 0 6px; }
 
-.footer { 
-  margin-top: 10px; 
-  display: flex; 
-  gap: 6px; 
-  align-items: center; 
-  justify-content: center; 
-  flex-wrap: wrap;
-}
+.footer { margin-top: 10px; display: flex; gap: 6px; align-items: center; justify-content: center; }
 .muted { color: #9ca3af; font-weight: 800; font-size: 12px; }
+
+.error {
+  border: 1px solid #fecaca;
+  background: #fef2f2;
+  color: #991b1b;
+  border-radius: 12px;
+  padding: 10px 12px;
+  font-weight: 900;
+  font-size: 12px;
+}
 
 @media (max-width: 900px) {
   .shell { grid-template-columns: 1fr; }
@@ -301,13 +362,3 @@ function goHome() {
   .right { padding: 28px 22px 22px; }
 }
 </style>
-
-
-
-
-
-
-
-
-
-
