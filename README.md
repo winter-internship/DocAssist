@@ -74,6 +74,19 @@ npm run dev -- --port 3000
 ```
 브라우저에서 `http://localhost:3000`으로 접속합니다.
 
+### 6. 개발 서버 한 번에 실행 (스크립트)
+루트 디렉토리에서 다음을 실행하세요.
+
+```bash
+bash dev.sh
+```
+
+- `backend/venv`와 `pip install -r backend/requirements.txt`가 필요합니다.
+- DB 마이그레이션은 최초 1회 `alembic upgrade head`로 진행하세요.
+- `frontend/node_modules`가 없으면 자동으로 `npm install`을 실행합니다.
+- 로그는 `backend.log`, `frontend.log`에 기록됩니다.
+- 파일 변경 감지는 폴링 모드로 동작합니다.
+
 ---
 
 ## 🐳 Docker로 한 번에 실행하기 (배포 모드)
