@@ -129,3 +129,10 @@ pytest
 
 ## 📚 더 자세한 설명
 각 파일의 역할과 상세 코드 설명은 **[docs/FRONTEND_STRUCTURE.md](./docs/FRONTEND_STRUCTURE.md)** 또는 `docs/` 폴더를 참고하세요.
+
+## 🌐 GitHub Pages 배포 (프론트엔드)
+`frontend`만 정적 빌드하여 GitHub Pages로 배포합니다.
+
+- 워크플로: `.github/workflows/pages.yml`
+- 기본 base 경로는 `/${repo}/`로 설정됩니다.
+- API 호출은 별도 백엔드가 필요합니다.
