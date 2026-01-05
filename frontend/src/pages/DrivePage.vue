@@ -131,7 +131,7 @@
               >
                 열기
               </button>
-              <button class="btn btn-sm btn-outline" type="button" @click="renameMock(doc)">
+              <button class="btn btn-sm btn-outline" type="button" @click="renameMock()">
                 이름변경
               </button>
             </div>
@@ -237,7 +237,6 @@ interface DocItem {
 const router = useRouter();
 const authStore = useAuthStore();
 
-const sidebarQ = ref(""); // (디자인 통일용)
 const theme = ref<"light" | "dark">("light");
 
 function applyTheme(next: "light" | "dark") {
@@ -389,7 +388,7 @@ function openDoc(doc: DocItem) {
 async function refreshMock() {
   await fetchDocuments();
 }
-function renameMock(doc: DocItem) {
+function renameMock() {
   // Rename API is needed, for now just UI alert or basic implementation if API exists
   // const name = prompt("새 제목을 입력하세요", doc.title);
   // if (!name) return;

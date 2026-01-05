@@ -167,8 +167,8 @@
                 </div>
                 <div class="td muted">{{ fmt(u.created_at) }}</div>
                 <div class="td">
-                  <button class="btn btn-sm" @click="toggleRoleMock(u)">권한변경</button>
-                  <button class="btn btn-sm btn-outline" @click="toggleActiveMock(u)">
+                  <button class="btn btn-sm" @click="toggleRoleMock()">권한변경</button>
+                  <button class="btn btn-sm btn-outline" @click="toggleActiveMock()">
                     {{ u.is_active ? "정지" : "활성" }}
                   </button>
                 </div>
@@ -581,11 +581,11 @@ const filteredUsers = computed(() => {
 });
 */
 
-function toggleRoleMock(u: UserItem) {
+function toggleRoleMock() {
   // users.value = users.value.map((x) => (x.id === u.id ? { ...x, role: x.role === "admin" ? "user" : "admin" } : x));
   showToast("권한 변경 (API 연동 필요)");
 }
-function toggleActiveMock(u: UserItem) {
+function toggleActiveMock() {
   // users.value = users.value.map((x) => (x.id === u.id ? { ...x, active: !x.active } : x));
   showToast("활성/정지 변경 (API 연동 필요)");
 }
