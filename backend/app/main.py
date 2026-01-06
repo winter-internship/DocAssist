@@ -15,12 +15,13 @@ logger = logging.getLogger(__name__)
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    # Startup
+    # Startup 단계에서 DB 초기화 또는 마이그레이션 관련 작업을 수행합니다.
+    # - `init_db` 는 필요한 초기 데이터를 넣거나 스키마를 확인하는 데 사용됩니다.
     logger.info("Initializing database...")
     async with SessionLocal() as db:
         await init_db(db)
     yield
-    # Shutdown
+    # Shutdown 단계: 리소스 정리 로직 위치
     logger.info("Shutting down...")
 
 app = FastAPI(
